@@ -1,0 +1,21 @@
+{
+  "name": "shop-easy-master",
+  "version": "1.0.0",
+  "description": "ShopEase is a modern, responsive, single-page e-commerce store built from scratch with pure frontend technologies. It simulates a realistic shopping workflow including product catalog browsing, live search, category-based filtering, interactive cart calculations, checkout confirmations, and client-side customer session persistence.",
+  "main": "find-duplicates.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "nodemailer": "^9.0.1",
+    "dotenv": "^16.3.1"
+  }
+}
