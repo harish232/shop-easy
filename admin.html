@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="admin-login-screen" id="admin-login-screen">
+    <div class="admin-login-card">
+      <h2>ShopEase Admin Login</h2>
+      <p>Enter the admin secret to access the dashboard.</p>
+      <form id="admin-login-form">
+        <label for="admin-secret">Admin Secret</label>
+        <div class="password-field-wrapper">
+          <input id="admin-secret" type="password" required placeholder="Enter admin secret">
+          <button type="button" class="password-toggle-btn" onclick="toggleAdminPassword()" aria-label="Toggle password visibility">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <button type="button" class="admin-login-btn" onclick="handleAdminLogin(event)">Sign In</button>
+      </form>
+      <p class="admin-login-hint">The secret is configured in <code>.env</code>.</p>
+    </div>
+  </div>
+
+  <main class="admin-page hidden" id="admin-dashboard">
+    <header class="admin-header">
+      <div>
+        <h1>ShopEase Admin</h1>
+        <p>Order management, user administration, and product analytics.</p>
+      </div>
+      <div>
+        <button class="admin-logout-btn" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+      </div>
+    </header>
+
+    <section class="admin-cards">
+      <article class="admin-card" id="stat-users">
+        <h3>Registered Users</h3>
+        <p class="admin-stat">0</p>
+      </article>
+      <article class="admin-card" id="stat-orders">
+        <h3>Total Orders</h3>
+        <p class="admin-stat">0</p>
+      </article>
+      <article class="admin-card" id="stat-sales">
+        <h3>Total Sales</h3>
+        <p class="admin-stat">₹0</p>
+      </article>
+      <article class="admin-card" id="stat-pending">
+        <h3>Pending Returns</h3>
+        <p class="admin-stat">0</p>
+      </article>
+    </section>
+
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2>Recent Orders</h2>
+      </div>
+      <div class="admin-table-wrapper">
+        <table class="admin-table" id="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>User Email</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2>Users</h2>
+      </div>
+      <div class="admin-table-wrapper">
+        <table class="admin-table" id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="admin.js" defer></script>
+</body>
+</html>

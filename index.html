@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase E-Commerce Store</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="#" onclick="showView('products'); return false;"><i class="fa-solid fa-bag-shopping"></i>
+        Shop<span>Ease</span></a>
+      <div class="nav-links">
+        <a href="#" class="active" onclick="showView('products'); return false;">Home</a>
+        <a href="#" onclick="showView('products'); return false;">Electronics</a>
+        <a href="#" onclick="showView('products'); return false;">Fashion</a>
+        <a href="#" onclick="showView('products'); return false;">Accessories</a>
+        <a href="#" onclick="showView('products'); return false;">Books</a>
+        <a href="#" onclick="showView('support'); return false;">Support</a>
+      </div>
+      <div class="nav-actions">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search products..." id="search-input" oninput="searchProducts()">
+        </div>
+        <button class="cart-btn" onclick="showView('cart')">
+          <i class="fa-solid fa-cart-shopping"></i> Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </button>
+        <div class="theme-switch-wrapper">
+          <label class="theme-switch" for="theme-checkbox">
+            <input type="checkbox" id="theme-checkbox" />
+            <div class="slider round"><i class="fa-solid fa-sun"></i><i class="fa-solid fa-moon"></i></div>
+          </label>
+        </div>
+        <div id="auth-nav-container">
+          <!-- Will be populated dynamically by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO CAROUSEL -->
+  <div class="hero-carousel">
+    <div class="hero-slides">
+      <div class="hero-slide active" style="background: linear-gradient(135deg, #1a56db 0%, #0f3fa1 100%);">
+        <h1>Shop Smart. Save Big.</h1>
+        <p>Top quality products, best prices delivered to your doorstep</p>
+        <div class="hero-badge">Mega Sale Up to 40% off today only!</div>
+      </div>
+      <div class="hero-slide" style="background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);">
+        <h1>New Arrivals in Fashion</h1>
+        <p>Check out the latest trends and styles for this season</p>
+        <div class="hero-badge">Fresh Collection Live Now</div>
+      </div>
+      <div class="hero-slide" style="background: linear-gradient(135deg, #db2777 0%, #831843 100%);">
+        <h1>Electronics Fest</h1>
+        <p>Unbeatable deals on gadgets, accessories, and more</p>
+        <div class="hero-badge">Limited Time Offers</div>
+      </div>
+    </div>
+    <div class="hero-dots"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- VIEW 1: PRODUCTS PAGE -->
+    <div id="products-view" class="view-container">
+      <div class="section-header">
+        <h2 class="section-title">All Products</h2>
+        <div class="controls-container">
+          <div class="filters">
+            <button class="filter-btn active" onclick="filterProducts('all', this)"><i
+                class="fa-solid fa-border-all"></i> All</button>
+            <button class="filter-btn" onclick="filterProducts('electronics', this)"><i class="fa-solid fa-laptop"></i>
+              Electronics</button>
+            <button class="filter-btn" onclick="filterProducts('fashion', this)"><i class="fa-solid fa-shirt"></i>
+              Fashion</button>
+            <button class="filter-btn" onclick="filterProducts('accessories', this)"><i class="fa-solid fa-glasses"></i>
+              Accessories</button>
+            <button class="filter-btn" onclick="filterProducts('books', this)"><i class="fa-solid fa-book"></i>
+              Books</button>
+            <button class="filter-btn" onclick="filterProducts('home', this)"><i class="fa-solid fa-house"></i>
+              Home</button>
+            <button class="filter-btn" onclick="filterProducts('favorites', this)"
+              style="color: var(--danger); border-color: rgba(220,38,38,0.15);"><i class="fa-solid fa-heart"></i>
+              Favorites</button>
+          </div>
+          <div class="sort-container">
+            <select id="sort-select" onchange="sortProducts()">
+              <option value="default">Sort by: Default</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating-desc">Rating: High to Low</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="product-grid" id="product-grid"></div>
+      <!-- PAGINATION CONTAINER -->
+      <div id="pagination-container"></div>
+
+
+      <!-- RECENTLY VIEWED SECTION -->
+      <div id="recently-viewed-section" style="display: none; margin-top: 48px;">
+        <div class="section-header">
+          <h2 class="section-title"><i class="fa-solid fa-eye" style="color: var(--accent);"></i> Recently Viewed</h2>
+        </div>
+        <div class="product-grid" id="recently-viewed-grid"></div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: CART PAGE -->
+    <div id="cart-view" class="view-container" style="display: none;">
+      <div class="cart-page-header">
+        <h2 class="cart-page-title"><i class="fa-solid fa-cart-shopping"></i> Your Shopping Cart</h2>
+        <span class="cart-count-badge" id="cart-header-count">0 items</span>
+      </div>
+
+      <div class="cart-page-layout">
+        <!-- Left side: Cart Items list -->
+        <div class="cart-items-section" id="cart-body">
+          <!-- Cart Items list will render here -->
+        </div>
+
+        <!-- Right side: Order Summary Card -->
+        <div class="cart-summary-section" id="cart-summary-card" style="display: none;">
+          <h3>Order Summary</h3>
+          <form class="coupon-form" onsubmit="applyCoupon(event)">
+            <input type="text" id="coupon-input" placeholder="Enter coupon code">
+            <button type="submit" id="coupon-apply-btn">Apply</button>
+          </form>
+          <div id="applied-coupon-display" style="display: none;">
+            <!-- Applied coupon info will be shown here -->
+          </div>
+          <div class="price-breakdown">
+            <div class="price-row-summary"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+            <div class="price-row-summary"><span>Delivery</span><span id="delivery">₹40</span></div>
+            <div class="price-row-summary"><span>Discount</span><span id="discount"
+                style="color:var(--success)">-₹0</span></div>
+            <div class="price-row-summary total"><span>Total</span><span id="total-price">₹40</span></div>
+          </div>
+          <button class="checkout-btn" onclick="checkout()">
+            <i class="fa-solid fa-circle-check"></i> Place Order
+          </button>
+          <button class="clear-btn" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i> Clear Cart</button>
+          <button class="back-shopping-btn" onclick="showView('products')">
+            <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: ORDERS VIEW -->
+    <div id="orders-view" class="view-container" style="display: none;">
+      <div class="cart-page-header" style="margin-bottom: 24px;">
+        <h2 class="cart-page-title"><i class="fa-solid fa-box-open" style="color: var(--accent);"></i> My Orders</h2>
+        <span class="cart-count-badge" id="orders-header-count">0 orders</span>
+      </div>
+      <div id="orders-list-body" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Orders list loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- VIEW 4: CUSTOMER SUPPORT VIEW -->
+    <div id="support-view" class="view-container" style="display: none;">
+      <div class="support-page-header">
+        <h2>
+          <i class="fa-solid fa-headset" style="color: var(--accent);"></i> Customer Help Center
+        </h2>
+        <p>Have questions? Search our FAQs or talk with our virtual assistant agent.</p>
+      </div>
+      <div class="support-grid-layout">
+        <div class="support-faq-column">
+          <!-- FAQs -->
+          <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 28px;">
+            <h3
+              style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-question" style="color: var(--accent);"></i> Frequently Asked Questions
+            </h3>
+
+            <div class="faq-item" style="border-bottom: 1px solid var(--border); padding: 14px 0;">
+              <div onclick="toggleFaq(this)"
+                style="font-weight: 600; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>How can I track my order delivery?</span>
+                <i class="fa-solid fa-chevron-down"
+                  style="font-size: 11px; transition: transform 0.2s; color: var(--text-secondary);"></i>
+              </div>
+              <div class="faq-answer"
+                style="display: none; padding-top: 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                Once shipped, we email you a tracking ID. You can also view active shipment updates by opening the 'My
+                Orders' section on this dashboard.
+              </div>
+            </div>
+
+            <div class="faq-item" style="border-bottom: 1px solid var(--border); padding: 14px 0;">
+              <div onclick="toggleFaq(this)"
+                style="font-weight: 600; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>What is the return/refund policy?</span>
+                <i class="fa-solid fa-chevron-down"
+                  style="font-size: 11px; transition: transform 0.2s; color: var(--text-secondary);"></i>
+              </div>
+              <div class="faq-answer"
+                style="display: none; padding-top: 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                We offer a 30-day return policy for all undamaged goods. Refund payments will be returned to your
+                original payment card within 3-5 days.
+              </div>
+            </div>
+
+            <div class="faq-item" style="border-bottom: 1px solid var(--border); padding: 14px 0;">
+              <div onclick="toggleFaq(this)"
+                style="font-weight: 600; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>What payments do you accept?</span>
+                <i class="fa-solid fa-chevron-down"
+                  style="font-size: 11px; transition: transform 0.2s; color: var(--text-secondary);"></i>
+              </div>
+              <div class="faq-answer"
+                style="display: none; padding-top: 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                We support standard Debit/Credit cards, Net Banking, UPI/GPay/PhonePe transfer, and Cash on Delivery
+                (COD).
+              </div>
+            </div>
+
+            <div class="faq-item" style="padding: 14px 0 0;">
+              <div onclick="toggleFaq(this)"
+                style="font-weight: 600; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>Can I edit my shipping address?</span>
+                <i class="fa-solid fa-chevron-down"
+                  style="font-size: 11px; transition: transform 0.2s; color: var(--text-secondary);"></i>
+              </div>
+              <div class="faq-answer"
+                style="display: none; padding-top: 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                Yes! Open 'My Profile' and update your Shipping Address. Saved details will automatically apply to all
+                future orders.
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Ticket Form -->
+          <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm);">
+            <h3
+              style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-paper-plane" style="color: var(--accent);"></i> Send Support Message
+            </h3>
+            <form id="support-ticket-form" onsubmit="submitSupportTicket(event)">
+              <div class="form-group">
+                <label for="support-name">Full Name</label>
+                <input type="text" id="support-name" required placeholder="John Doe"
+                  style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--bg); font-family: inherit; font-size: 14px; outline: none;">
+              </div>
+              <div class="form-group">
+                <label for="support-email">Email Address</label>
+                <input type="email" id="support-email" required placeholder="name@example.com"
+                  style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--bg); font-family: inherit; font-size: 14px; outline: none;">
+              </div>
+              <div class="form-group">
+                <label for="support-msg">Message Query</label>
+                <textarea id="support-msg" rows="4" required placeholder="Describe your issue or order question..."
+                  style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--bg); font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+              </div>
+              <button type="submit" class="auth-submit-btn" style="margin-top: 12px; width: auto; padding: 12px 32px;">
+                Submit Support Ticket <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Virtual Chatbot Agent -->
+        <div class="support-chatbot-column">
+          <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md); display: flex; flex-direction: column; height: 580px;">
+            <div
+              style="background: var(--text-primary); color: white; padding: 18px 24px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <div
+                style="width: 38px; height: 38px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h4 style="font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;">ShopEase Assistant</h4>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">• Online and ready to help</p>
+              </div>
+            </div>
+
+            <div id="chat-messages"
+              style="flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: #fafafa;">
+              <div class="chat-bubble bot">
+                Hello! I'm your virtual ShopEase support agent. How can I help you today?
+                <br><br>
+                Try asking about:
+                <ul style="margin: 8px 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 4px;">
+                  <li>"Where is my package?"</li>
+                  <li>"How to request a refund?"</li>
+                  <li>"What is the phone number for support?"</li>
+                  <li>"Is there any discounts or offers?"</li>
+                </ul>
+              </div>
+            </div>
+
+            <form id="chat-input-form" onsubmit="sendChat(event)"
+              style="border-top: 1px solid var(--border); padding: 14px 20px; display: flex; gap: 10px; background: var(--surface);">
+              <input type="text" id="chat-input" placeholder="Type a message to support..." required autocomplete="off"
+                style="flex: 1; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 16px; height: 42px; font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.2s;">
+              <button type="submit"
+                style="background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i
+                  class="fa-solid fa-paper-plane"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="auth-card">
+      <button class="auth-close-btn" onclick="closeAuthModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')" id="tab-signup">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="auth-header-text">Welcome back! Sign in to access your ShopEase account.</div>
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-envelope field-icon"></i>
+            <input type="email" id="login-email" required placeholder="name@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-lock field-icon"></i>
+            <input type="password" id="login-password" required placeholder="••••••••">
+            <i class="fa-solid fa-eye-slash toggle-password"
+              onclick="togglePasswordVisibility('login-password', this)"></i>
+          </div>
+        </div>
+        <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+          <a href="#" onclick="openForgotPasswordModal()"
+            style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+        </div>
+        <button type="submit" class="auth-submit-btn">
+          Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" onsubmit="handleSignup(event)" style="display: none;">
+        <div class="auth-header-text">Create a free account to track your orders and shop easily.</div>
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-user field-icon"></i>
+            <input type="text" id="signup-name" required placeholder="John Doe">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-envelope field-icon"></i>
+            <input type="email" id="signup-email" required placeholder="name@example.com">
+          </div>
+        </div>
+        <div id="otp-password-group" style="display: none;">
+          <div class="form-group">
+            <label for="signup-otp">OTP</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-key field-icon"></i>
+              <input type="text" id="signup-otp" placeholder="Enter 6-digit OTP" maxlength="6">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Set Password</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-lock field-icon"></i>
+              <input type="password" id="signup-password" placeholder="At least 6 characters" minlength="6">
+              <i class="fa-solid fa-eye-slash toggle-password"
+                onclick="togglePasswordVisibility('signup-password', this)"></i>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="auth-submit-btn" id="send-otp-btn" onclick="handleSendOtp()">
+          Send OTP <i class="fa-solid fa-paper-plane"></i>
+        </button>
+        <button type="submit" class="auth-submit-btn" id="signup-submit-btn" style="display: none;">
+          Create Account <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+
+      <!-- Social Login Section -->
+      <div class="social-login-divider">
+        <span>OR</span>
+      </div>
+      <div class="social-login-buttons">
+        <button type="button" class="social-login-btn google" onclick="handleSocialLogin('Google')">
+          <i class="fa-brands fa-google"></i> Continue with Google
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="auth-card">
+      <button class="auth-close-btn" onclick="closeProfileModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div
+        style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+        <i class="fa-solid fa-user-gear" style="color: var(--accent);"></i> My Profile
+      </div>
+      <div class="auth-header-text">View and update your account details below.</div>
+
+      <form id="profile-form" onsubmit="handleProfileUpdate(event)">
+        <div class="form-group">
+          <label for="profile-name">Full Name</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-user field-icon"></i>
+            <input type="text" id="profile-name" required placeholder="John Doe">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="profile-email">Email Address</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-envelope field-icon"></i>
+            <input type="email" id="profile-email" required placeholder="name@example.com">
+          </div>
+        </div>
+        <button type="submit" class="auth-submit-btn">
+          Save Changes <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div class="modal-overlay" id="forgot-password-modal">
+    <div class="auth-card">
+      <button class="auth-close-btn" onclick="closeForgotPasswordModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div
+        style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+        <i class="fa-solid fa-key" style="color: var(--accent);"></i> Reset Password
+      </div>
+
+      <!-- Step 1: Email Input -->
+      <form id="forgot-password-step1" onsubmit="handleForgotPasswordSendOtp(event)">
+        <div class="auth-header-text">Enter your email to receive a password reset OTP.</div>
+        <div class="form-group">
+          <label for="forgot-email">Email Address</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-envelope field-icon"></i>
+            <input type="email" id="forgot-email" required placeholder="name@example.com">
+          </div>
+        </div>
+        <button type="submit" class="auth-submit-btn" id="forgot-send-otp-btn">
+          Send Reset OTP <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+
+      <!-- Step 2: OTP and New Password -->
+      <form id="forgot-password-step2" onsubmit="handleResetPassword(event)" style="display: none;">
+        <div class="auth-header-text">An OTP has been sent to your email. Enter it below along with your new password.
+        </div>
+        <div class="form-group">
+          <label for="reset-otp">One-Time Password (OTP)</label>
+          <input type="text" id="reset-otp" required placeholder="Enter 6-digit OTP" maxlength="6"
+            class="input-icon-wrapper" style="padding-left: 14px;">
+        </div>
+        <div class="form-group">
+          <label for="reset-password">New Password</label>
+          <input type="password" id="reset-password" required placeholder="At least 6 characters" minlength="6"
+            class="input-icon-wrapper" style="padding-left: 14px;">
+        </div>
+        <div class="form-group">
+          <label for="reset-password-confirm">Confirm New Password</label>
+          <input type="password" id="reset-password-confirm" required placeholder="Confirm your new password"
+            minlength="6" class="input-icon-wrapper" style="padding-left: 14px;">
+        </div>
+        <button type="submit" class="auth-submit-btn">
+          Reset Password <i class="fa-solid fa-circle-check"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-icon"><i class="fa-solid fa-circle-check" style="color: var(--success); font-size: 60px;"></i>
+      </div>
+      <h2>Order Placed!</h2>
+      <p>Thank you for shopping with ShopEase!<br>Your order is confirmed and will be delivered in 3 5 business days.
+      </p>
+      <div class="modal-order-id" id="order-id">#ORD-000000</div>
+      <br>
+      <button class="modal-btn" onclick="closeModal()">Continue Shopping <i
+          class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAIL MODAL -->
+  <div class="modal-overlay" id="product-detail-modal">
+    <div class="product-detail-card">
+      <button class="auth-close-btn" onclick="closeProductDetailModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="product-detail-layout">
+        <!-- Left side: Gallery of 5 images -->
+        <div class="product-detail-gallery">
+          <div class="main-image-container">
+            <img src="" id="detail-main-img" alt="Product Image">
+          </div>
+          <div class="thumbnails-container" id="detail-thumbnails">
+            <!-- Thumbnails will load here dynamically -->
+          </div>
+        </div>
+        <!-- Right side: Info -->
+        <div class="product-detail-info">
+          <div class="detail-category" id="detail-category"></div>
+          <h2 class="detail-name" id="detail-name"></h2>
+          <div class="product-rating" id="detail-rating"></div>
+          <div class="detail-price-row">
+            <span class="detail-price" id="detail-price"></span>
+            <span class="detail-original" id="detail-original"></span>
+          </div>
+          <p class="detail-description">
+            Experience premium build quality and modern aesthetics with this item. Designed to elevate your daily
+            routine with exceptional reliability and stylish finish. Includes store warranty and satisfaction guarantee.
+          </p>
+          <div class="detail-actions">
+            <button class="detail-add-btn" id="detail-add-btn">
+              <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+            </button>
+            <button class="detail-like-btn" id="detail-like-btn">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOICE MODAL -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="auth-card" style="max-width: 650px; padding: 40px; width: 95%;">
+      <button class="auth-close-btn" onclick="closeInvoiceModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="invoice-print-area"
+        style="background: white; color: #111; text-align: left; font-family: 'DM Sans', sans-serif;">
+        <!-- Dynamic Invoice details loaded here -->
+      </div>
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="modal-btn" onclick="printInvoice()" style="background: var(--text-primary); color: white;"><i
+            class="fa-solid fa-print"></i> Print Invoice</button>
+        <button class="modal-btn" onclick="closeInvoiceModal()"><i class="fa-solid fa-circle-check"></i> Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN ORDER MODAL -->
+  <div class="modal-overlay" id="return-modal">
+    <div class="auth-card" style="max-width: 450px;">
+      <button class="auth-close-btn" onclick="closeReturnModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div
+        style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+        <i class="fa-solid fa-rotate-left" style="color: var(--danger);"></i> Return Order
+      </div>
+      <div class="auth-header-text">Please select a reason and provide optional comments to initiate a return.</div>
+
+      <form id="return-form" onsubmit="submitReturnRequest(event)">
+        <input type="hidden" id="return-order-id">
+        <div class="form-group">
+          <label for="return-reason">Reason for Return</label>
+          <select id="return-reason" required
+            style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--bg); font-family: inherit; font-size: 14px; outline: none; margin-bottom: 12px;">
+            <option value="" disabled selected>Select a reason...</option>
+            <option value="Damaged/Defective item">Damaged or defective item</option>
+            <option value="Wrong size/color received">Wrong size or color received</option>
+            <option value="Item not as expected">Item not as expected</option>
+            <option value="No longer needed/changed mind">No longer needed / Changed mind</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="return-comments">Comments (Optional)</label>
+          <textarea id="return-comments" rows="3" placeholder="Provide more details about the issue..."
+            style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--bg); font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+        </div>
+        <button type="submit" class="auth-submit-btn" style="background: var(--danger); margin-top: 16px;">
+          Submit Return Request <i class="fa-solid fa-check"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- COMPARE BAR -->
+  <div class="compare-bar" id="compare-bar">
+    <div class="compare-bar-info">
+      <div id="compare-bar-items"></div>
+      <div id="compare-bar-text"></div>
+    </div>
+    <div class="compare-bar-actions">
+      <button class="compare-bar-btn" onclick="openCompareModal()">
+        <i class="fa-solid fa-scale-balanced"></i> Compare Now
+      </button>
+      <button class="compare-bar-clear-btn" onclick="clearCompareList()">
+        <i class="fa-solid fa-xmark"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- COMPARE MODAL -->
+  <div class="modal-overlay" id="compare-modal">
+    <div class="auth-card" style="max-width: 900px; width: 95%;">
+      <button class="auth-close-btn" onclick="closeCompareModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div id="compare-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4 class="footer-logo"><i class="fa-solid fa-bag-shopping" style="color: var(--accent);"></i>
+          Shop<span>Ease</span></h4>
+        <p>The modern, ultimate shopping destination. Grab top-tier deals and secure order deliveries straight to your
+          home.</p>
+        <div class="footer-socials">
+          <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#" onclick="showView('products'); return false;">All Products</a></li>
+          <li><a href="#" onclick="showView('cart'); return false;">My Cart</a></li>
+          <li><a href="#" onclick="showOrdersView(); return false;">My Orders</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Customer Help</h4>
+        <ul>
+          <li><a href="#" onclick="showView('support'); return false;">Support Center</a></li>
+          <li><a href="#" onclick="showView('support'); return false;">FAQs</a></li>
+          <li><a href="#" onclick="showView('support'); return false;">Contact Form</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal Policy</h4>
+        <ul>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Shipping Rates</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with <i class="fa-solid fa-heart" style="color: var(--danger);"></i> · <span>ShopEase</span> &copy; 2026.
+      All rights reserved.
+    </div>
+  </footer>
+  <script src="script.js" defer></script>
+</body>
+
+</html>
