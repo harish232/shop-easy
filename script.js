@@ -735,9 +735,10 @@ window.toggleUserMenu = toggleUserMenu;
 function openAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
-    modal.style.display = '';
     modal.classList.remove('hidden');
     modal.classList.add('show');
+    modal.style.display = 'flex';
+    modal.style.zIndex = '99999';
     switchAuthTab('login');
   }
 }
@@ -756,7 +757,7 @@ document.addEventListener('click', (e) => {
 function closeAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
-    modal.style.display = '';
+    modal.style.display = 'none';
     modal.classList.remove('show');
     modal.classList.remove('hidden');
   }
