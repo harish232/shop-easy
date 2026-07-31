@@ -10,6 +10,8 @@
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -43,9 +45,7 @@
           </label>
         </div>
         <div id="auth-nav-container">
-          <button class="login-btn" onclick="openAuthModal()">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
-          </button>
+          <!-- Will be populated dynamically by JavaScript -->
         </div>
       </div>
     </div>
@@ -323,159 +323,6 @@
       </div>
     </div>
 
-    <!-- VIEW 5: CLIENT / CUSTOMER DASHBOARD VIEW -->
-    <div id="dashboard-view" class="view-container" style="display: none;">
-      <!-- Customer Header Profile Banner -->
-      <div class="dash-profile-banner">
-        <div class="dash-avatar-wrapper">
-          <div class="dash-avatar" id="dash-avatar-img"><i class="fa-solid fa-user"></i></div>
-        </div>
-        <div class="dash-header-info">
-          <div class="dash-user-badge"><i class="fa-solid fa-crown" style="color: #f59e0b;"></i> Customer Account</div>
-          <h2 id="dash-user-name">Welcome Back!</h2>
-          <p id="dash-user-email">user@example.com</p>
-        </div>
-        <div class="dash-header-actions">
-          <button class="dash-action-btn primary" onclick="switchDashboardTab('settings')">
-            <i class="fa-solid fa-user-pen"></i> Edit Profile
-          </button>
-          <button class="dash-action-btn danger" onclick="handleLogout()">
-            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-          </button>
-        </div>
-      </div>
-
-      <!-- Quick Stats Counters -->
-      <div class="dash-stats-grid">
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: rgba(22, 163, 74, 0.1); color: var(--accent);">
-            <i class="fa-solid fa-bag-shopping"></i>
-          </div>
-          <div>
-            <div class="dash-stat-value" id="dash-stat-orders">0</div>
-            <div class="dash-stat-label">Total Orders</div>
-          </div>
-        </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-            <i class="fa-solid fa-indian-rupee-sign"></i>
-          </div>
-          <div>
-            <div class="dash-stat-value" id="dash-stat-spent">₹0</div>
-            <div class="dash-stat-label">Total Spent</div>
-          </div>
-        </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
-            <i class="fa-solid fa-heart"></i>
-          </div>
-          <div>
-            <div class="dash-stat-value" id="dash-stat-wishlist">0</div>
-            <div class="dash-stat-label">Wishlist Items</div>
-          </div>
-        </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-            <i class="fa-solid fa-truck-fast"></i>
-          </div>
-          <div>
-            <div class="dash-stat-value" id="dash-stat-in-transit">0</div>
-            <div class="dash-stat-label">Active Orders</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dashboard Nav Tabs -->
-      <div class="dash-tabs">
-        <button class="dash-tab active" id="tab-dash-overview" onclick="switchDashboardTab('overview')">
-          <i class="fa-solid fa-gauge-high"></i> Overview
-        </button>
-        <button class="dash-tab" id="tab-dash-orders" onclick="switchDashboardTab('orders')">
-          <i class="fa-solid fa-box-open"></i> My Orders & Tracker
-        </button>
-        <button class="dash-tab" id="tab-dash-wishlist" onclick="switchDashboardTab('wishlist')">
-          <i class="fa-solid fa-heart"></i> Saved Wishlist
-        </button>
-        <button class="dash-tab" id="tab-dash-settings" onclick="switchDashboardTab('settings')">
-          <i class="fa-solid fa-sliders"></i> Account Settings
-        </button>
-      </div>
-
-      <!-- Tab Pane 1: Overview -->
-      <div id="dash-pane-overview" class="dash-pane active">
-        <div class="dash-grid-2">
-          <!-- Profile & Shipping Card -->
-          <div class="dash-card">
-            <div class="dash-card-header">
-              <h3><i class="fa-solid fa-address-card" style="color: var(--accent);"></i> Default Delivery Address</h3>
-              <button class="dash-link-btn" onclick="switchDashboardTab('settings')">Edit</button>
-            </div>
-            <div class="dash-address-box">
-              <div class="dash-address-name" id="dash-overview-name">Customer Name</div>
-              <div class="dash-address-line" id="dash-overview-phone"><i class="fa-solid fa-phone"></i> Phone: Not set</div>
-              <div class="dash-address-line" id="dash-overview-address"><i class="fa-solid fa-location-dot"></i> Address: No saved delivery address provided yet.</div>
-            </div>
-          </div>
-
-          <!-- Latest Order Progress -->
-          <div class="dash-card">
-            <div class="dash-card-header">
-              <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i> Recent Order Progress</h3>
-              <button class="dash-link-btn" onclick="switchDashboardTab('orders')">View Orders</button>
-            </div>
-            <div id="dash-latest-order-container">
-              <!-- Rendered via JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab Pane 2: Orders & Tracker -->
-      <div id="dash-pane-orders" class="dash-pane" style="display: none;">
-        <div id="dash-orders-list">
-          <!-- Order Cards with Pipeline Progress Bar rendered dynamically -->
-        </div>
-      </div>
-
-      <!-- Tab Pane 3: Wishlist -->
-      <div id="dash-pane-wishlist" class="dash-pane" style="display: none;">
-        <div class="product-grid" id="dash-wishlist-grid">
-          <!-- Wishlist items -->
-        </div>
-      </div>
-
-      <!-- Tab Pane 4: Settings -->
-      <div id="dash-pane-settings" class="dash-pane" style="display: none;">
-        <div class="dash-card" style="max-width: 650px;">
-          <div class="dash-card-header">
-            <h3><i class="fa-solid fa-user-gear" style="color: var(--accent);"></i> Account & Delivery Details</h3>
-          </div>
-          <form id="dash-settings-form" onsubmit="handleDashboardSettingsSubmit(event)">
-            <div class="form-group">
-              <label for="dash-input-name">Full Name</label>
-              <input type="text" id="dash-input-name" required class="dash-input">
-            </div>
-            <div class="form-group">
-              <label for="dash-input-email">Email Address</label>
-              <input type="email" id="dash-input-email" required class="dash-input">
-            </div>
-            <div class="form-group">
-              <label for="dash-input-phone">Phone Number</label>
-              <input type="tel" id="dash-input-phone" placeholder="+91 98765 43210" class="dash-input">
-            </div>
-            <div class="form-group">
-              <label for="dash-input-address">Default Delivery Address</label>
-              <textarea id="dash-input-address" rows="3" placeholder="Door No, Street Name, City, Pincode" class="dash-input"></textarea>
-            </div>
-            <button type="submit" class="auth-submit-btn" style="width: auto; padding: 12px 32px;">
-              Save Profile Details <i class="fa-solid fa-floppy-disk"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-
-    </div>
-
   </div>
 
   <!-- AUTH MODAL -->
@@ -491,6 +338,7 @@
 
       <!-- Login Form -->
       <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="auth-header-text">Welcome back! Sign in to access your ShopEase account.</div>
         <div class="form-group">
           <label for="login-email">Email Address</label>
           <div class="input-icon-wrapper">
@@ -507,9 +355,9 @@
               onclick="togglePasswordVisibility('login-password', this)"></i>
           </div>
         </div>
-        <div style="text-align: right; margin-top: -6px; margin-bottom: 12px;">
+        <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
           <a href="#" onclick="openForgotPasswordModal()"
-            style="font-size: 11.5px; color: var(--accent); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+            style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600;">Forgot Password?</a>
         </div>
         <button type="submit" class="auth-submit-btn">
           Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
@@ -518,6 +366,7 @@
 
       <!-- Signup Form -->
       <form id="signup-form" onsubmit="handleSignup(event)" style="display: none;">
+        <div class="auth-header-text">Create a free account to track your orders and shop easily.</div>
         <div class="form-group">
           <label for="signup-name">Full Name</label>
           <div class="input-icon-wrapper">
@@ -532,19 +381,42 @@
             <input type="email" id="signup-email" required placeholder="name@example.com">
           </div>
         </div>
-        <div class="form-group">
-          <label for="signup-password">Password</label>
-          <div class="input-icon-wrapper">
-            <i class="fa-solid fa-lock field-icon"></i>
-            <input type="password" id="signup-password" required placeholder="At least 4 characters" minlength="4">
-            <i class="fa-solid fa-eye-slash toggle-password"
-              onclick="togglePasswordVisibility('signup-password', this)"></i>
+        <div id="otp-password-group" style="display: none;">
+          <div class="form-group">
+            <label for="signup-otp">OTP</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-key field-icon"></i>
+              <input type="text" id="signup-otp" placeholder="Enter 6-digit OTP" maxlength="6">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Set Password</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-lock field-icon"></i>
+              <input type="password" id="signup-password" placeholder="At least 6 characters" minlength="6">
+              <i class="fa-solid fa-eye-slash toggle-password"
+                onclick="togglePasswordVisibility('signup-password', this)"></i>
+            </div>
           </div>
         </div>
-        <button type="submit" class="auth-submit-btn" id="signup-submit-btn">
+        <button type="button" class="auth-submit-btn" id="send-otp-btn" onclick="handleSendOtp()">
+          Send OTP <i class="fa-solid fa-paper-plane"></i>
+        </button>
+        <button type="submit" class="auth-submit-btn" id="signup-submit-btn" style="display: none;">
           Create Account <i class="fa-solid fa-user-plus"></i>
         </button>
       </form>
+
+      <!-- Social Login Section -->
+      <div class="social-login-divider">
+        <span>OR</span>
+      </div>
+      <div class="social-login-buttons">
+        <button type="button" class="social-login-btn google" onclick="handleSocialLogin('Google')">
+          <i class="fa-brands fa-google"></i> Continue with Google
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -770,6 +642,89 @@
     </div>
   </div>
 
+  <!-- INTERACTIVE PAYMENT MODAL -->
+  <div class="modal-overlay" id="payment-modal" style="z-index: 100000;">
+    <div class="auth-card" style="max-width: 500px; width: 95%;">
+      <button class="auth-close-btn" onclick="closePaymentModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+        <i class="fa-solid fa-credit-card" style="color: var(--accent);"></i> Secure Checkout Payment
+      </div>
+      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+        Total Payable Amount: <strong id="payment-modal-amount" style="color: var(--primary); font-size: 17px; font-weight: 800;">₹0</strong>
+      </div>
+
+      <!-- Payment Method Tabs -->
+      <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+        <button type="button" class="pay-tab-btn active" id="pay-tab-upi" onclick="switchPayTab('upi')" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fa-solid fa-qrcode" style="color:#4285F4;"></i> UPI / GPay
+        </button>
+        <button type="button" class="pay-tab-btn" id="pay-tab-card" onclick="switchPayTab('card')" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fa-solid fa-credit-card" style="color:#10b981;"></i> Card
+        </button>
+        <button type="button" class="pay-tab-btn" id="pay-tab-cod" onclick="switchPayTab('cod')" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fa-solid fa-truck-ramp-box" style="color:#f59e0b;"></i> COD
+        </button>
+      </div>
+
+      <!-- Tab 1: UPI -->
+      <div id="pay-content-upi" class="pay-tab-content">
+        <div style="text-align: center; background: var(--bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 18px;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">Scan QR Code via GPay / PhonePe / Paytm</div>
+          <div style="background: white; padding: 12px; display: inline-block; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=shopease@upi%26pn=ShopEase" alt="UPI QR" style="width: 150px; height: 150px; display: block;">
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 10px;">UPI ID: <strong style="color: var(--primary);">shopease@upi</strong></div>
+        </div>
+        <button type="button" class="checkout-btn" onclick="processPayment('UPI / GPay')">
+          <i class="fa-solid fa-circle-check"></i> Verify & Complete UPI Payment
+        </button>
+      </div>
+
+      <!-- Tab 2: Card -->
+      <div id="pay-content-card" class="pay-tab-content" style="display: none;">
+        <form onsubmit="event.preventDefault(); processPayment('Credit/Debit Card');">
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" placeholder="4532 8921 3410 9901" required maxlength="19" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; outline: none; background: var(--bg);">
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <div class="form-group" style="flex: 1;">
+              <label>Expiry Date</label>
+              <input type="text" placeholder="MM/YY" required maxlength="5" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; outline: none; background: var(--bg);">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label>CVV</label>
+              <input type="password" placeholder="123" required maxlength="4" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; outline: none; background: var(--bg);">
+            </div>
+          </div>
+          <button type="submit" class="checkout-btn" style="margin-top: 12px;">
+            <i class="fa-solid fa-lock"></i> Pay Now & Complete Order
+          </button>
+        </form>
+      </div>
+
+      <!-- Tab 3: COD -->
+      <div id="pay-content-cod" class="pay-tab-content" style="display: none;">
+        <div style="background: var(--bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 18px; font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
+          <i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Pay cash when your order package is delivered right to your doorstep. No advance payment required!
+        </div>
+        <button type="button" class="checkout-btn" onclick="processPayment('Cash on Delivery (COD)')">
+          <i class="fa-solid fa-truck"></i> Confirm Cash on Delivery Order
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAILS & REVIEWS MODAL -->
+  <div class="modal-overlay" id="product-details-modal" style="z-index: 99999;">
+    <div class="auth-card" style="max-width: 750px; width: 95%; max-height: 90vh; overflow-y: auto;">
+      <button class="auth-close-btn" onclick="closeProductDetailsModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div id="product-details-content"></div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
@@ -817,6 +772,7 @@
       All rights reserved.
     </div>
   </footer>
+
   <script src="script.js" defer></script>
 </body>
 

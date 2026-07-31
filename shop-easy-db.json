@@ -19,9 +19,41 @@
       "phone": "",
       "address": "",
       "created_at": "2026-07-31T07:03:36.151Z"
+    },
+    {
+      "id": 1785489104531,
+      "name": "h",
+      "email": "h@gmail.com",
+      "password": "$2a$10$nvSAJ5rlXGl7DGbvtBf6YubsrqZaR1UCfS2uc/GHk9QajEmJC.pYS",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
+      "created_at": "2026-07-31T09:11:44.531Z"
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": "ORD-287135",
+      "email": "hbabu8248@gmail.com",
+      "shippingName": "Harish Babu",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 4,
+          "name": "Designer UV Sunglasses",
+          "price": 899,
+          "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 899,
+      "delivery": 40,
+      "discount": 0,
+      "total": 939,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-07-31T09:20:43.901Z"
+    }
+  ],
   "products": [
     {
       "id": 1,

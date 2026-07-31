@@ -265,6 +265,7 @@ function renderProducts() {
   grid.innerHTML = paginatedProducts.map(p => {
     const inCart = cart[p.id] > 0;
     const isLiked = !!likedProducts[p.id];
+    const isLowStock = p.id % 3 === 0;
 
     return `
       <div class="product-card" onclick="openProductDetail(${p.id})">
@@ -279,8 +280,16 @@ function renderProducts() {
           </button>
         </div>
         <div class="product-body">
-          <div class="product-category">${p.category}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-category">${p.category}</div>
+            <span class="stock-badge ${isLowStock ? 'low' : 'in-stock'}">
+              ${isLowStock ? '🔥 Only ' + ((p.id % 4) + 2) + ' left' : '✔ In Stock'}
+            </span>
+          </div>
           <div class="product-name">${p.name}</div>
+          <div style="font-size: 12px; color: #f59e0b; margin-bottom: 6px;">
+            <i class="fa-solid fa-star"></i> ${p.rating} (${p.reviews || 24} reviews)
+          </div>
           <div class="price-row">
             <div>
               <div class="product-price">₹${p.price.toLocaleString()}</div>
@@ -297,6 +306,118 @@ function renderProducts() {
 
   renderPagination(totalPages);
 }
+
+// ── PRODUCT DETAILS & REVIEWS MODAL ──
+const productReviews = JSON.parse(localStorage.getItem('productReviews')) || {};
+
+function openProductDetail(id) {
+  const p = PRODUCTS.find(prod => prod.id == id);
+  if (!p) return;
+
+  const modal = document.getElementById('product-details-modal');
+  const content = document.getElementById('product-details-content');
+  if (!modal || !content) return;
+
+  const reviewsList = productReviews[id] || [
+    { name: 'Rohan Sharma', rating: 5, comment: 'Exceeded expectations! Highly recommended product.', date: 'Yesterday' },
+    { name: 'Priya Patel', rating: 4, comment: 'Very good quality for the price. Delivery was super fast.', date: '3 days ago' }
+  ];
+
+  const reviewsHTML = reviewsList.map(r => `
+    <div style="background: var(--bg); padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 10px; border: 1px solid var(--border);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <strong style="font-size: 13.5px;">${r.name}</strong>
+        <span style="font-size: 12px; color: #f59e0b;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">${r.comment}</p>
+    </div>
+  `).join('');
+
+  content.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+      <div>
+        <img src="${p.image || p.images[0]}" alt="${p.name}" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border); max-height: 280px; object-fit: cover;">
+      </div>
+      <div>
+        <span style="font-size: 12px; text-transform: uppercase; color: var(--primary); font-weight: 700;">${p.category}</span>
+        <h2 style="font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin: 6px 0 10px;">${p.name}</h2>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+          <span style="font-size: 22px; font-weight: 800; color: var(--text-primary);">₹${p.price.toLocaleString()}</span>
+          ${p.original ? `<span style="text-decoration: line-through; color: var(--text-muted); font-size: 15px;">₹${p.original.toLocaleString()}</span>` : ''}
+          <span class="stock-badge in-stock">✔ In Stock (Ready to Ship)</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px;">
+          Premium quality guaranteed product. Verified by ShopEase authenticity standards. Includes 1-year official brand warranty.
+        </p>
+        <button class="checkout-btn" onclick="addToCart(${p.id}); closeProductDetailsModal(); showToast('<i class=\\'fa-solid fa-cart-plus\\'></i> Added to cart!', 'success');">
+          <i class="fa-solid fa-cart-plus"></i> Add to Shopping Cart
+        </button>
+      </div>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div style="border-top: 1px solid var(--border); padding-top: 20px;">
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Customer Ratings & Reviews
+      </h3>
+
+      <form onsubmit="event.preventDefault(); submitProductReview(${p.id});" style="background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <label style="font-weight: 600; font-size: 13px;">Your Rating:</label>
+          <select id="review-rating-select" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text-primary);">
+            <option value="5">★★★★★ (5 Stars)</option>
+            <option value="4">★★★★☆ (4 Stars)</option>
+            <option value="3">★★★☆☆ (3 Stars)</option>
+            <option value="2">★★☆☆☆ (2 Stars)</option>
+            <option value="1">★☆☆☆☆ (1 Star)</option>
+          </select>
+        </div>
+        <textarea id="review-comment-input" rows="2" placeholder="Write your honest review for this product..." required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); font-family: inherit; font-size: 13px; outline: none; margin-bottom: 10px;"></textarea>
+        <button type="submit" class="add-btn" style="padding: 8px 20px;">Submit Review <i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+
+      <div id="product-reviews-container">
+        ${reviewsHTML}
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('show');
+  modal.style.display = 'flex';
+}
+window.openProductDetail = openProductDetail;
+
+function closeProductDetailsModal() {
+  const modal = document.getElementById('product-details-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+  }
+}
+window.closeProductDetailsModal = closeProductDetailsModal;
+
+function submitProductReview(productId) {
+  const rating = parseInt(document.getElementById('review-rating-select').value);
+  const comment = document.getElementById('review-comment-input').value.trim();
+
+  if (!comment) return;
+
+  if (!productReviews[productId]) productReviews[productId] = [];
+
+  const newReview = {
+    name: currentUser ? currentUser.name : 'Verified Customer',
+    rating: rating,
+    comment: comment,
+    date: 'Just now'
+  };
+
+  productReviews[productId].unshift(newReview);
+  localStorage.setItem('productReviews', JSON.stringify(productReviews));
+
+  showToast('<i class="fa-solid fa-star"></i> Thank you! Your review has been published.', 'success');
+  openProductDetail(productId);
+}
+window.submitProductReview = submitProductReview;
 
 // ── PAGINATION ──
 function renderPagination(totalPages) {
@@ -501,13 +622,16 @@ function renderCart() {
   }
 }
 
-// ── CHECKOUT ──
-async function checkout() {
-  const items = Object.entries(cart).filter(([, q]) => q > 0);
-  if (items.length === 0) return;
+// ── CHECKOUT & PAYMENT MODAL ──
+let pendingOrderData = null;
 
-  const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-  const orderDate = new Date().toLocaleString();
+function checkout() {
+  const items = Object.entries(cart).filter(([, q]) => q > 0);
+  if (items.length === 0) {
+    showToast('<i class="fa-solid fa-cart-arrow-down"></i> Your cart is empty!', 'error');
+    return;
+  }
+
   const orderItems = items.map(([id, q]) => {
     const p = PRODUCTS.find(p => p.id == id);
     return {
@@ -532,6 +656,55 @@ async function checkout() {
   }
   const total = subtotal + delivery - discount;
 
+  pendingOrderData = {
+    orderItems,
+    subtotal,
+    delivery,
+    discount,
+    total
+  };
+
+  const amountEl = document.getElementById('payment-modal-amount');
+  if (amountEl) amountEl.textContent = `₹${total.toLocaleString()}`;
+  openPaymentModal();
+}
+window.checkout = checkout;
+
+function openPaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+  }
+}
+window.openPaymentModal = openPaymentModal;
+
+function closePaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+  }
+}
+window.closePaymentModal = closePaymentModal;
+
+function switchPayTab(tab) {
+  document.querySelectorAll('.pay-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.pay-tab-content').forEach(content => content.style.display = 'none');
+
+  const activeBtn = document.getElementById(`pay-tab-${tab}`);
+  const activeContent = document.getElementById(`pay-content-${tab}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activeContent) activeContent.style.display = 'block';
+}
+window.switchPayTab = switchPayTab;
+
+async function processPayment(method) {
+  if (!pendingOrderData) return;
+
+  const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+  const orderDate = new Date().toLocaleString();
+
   const newOrder = {
     id: orderId,
     date: orderDate,
@@ -539,12 +712,13 @@ async function checkout() {
     shippingName: currentUser ? currentUser.name : 'Guest Customer',
     shippingPhone: currentUser ? (currentUser.phone || 'N/A') : 'N/A',
     shippingAddress: currentUser ? (currentUser.address || 'N/A') : 'N/A',
-    items: orderItems,
-    subtotal: subtotal,
-    delivery: delivery,
-    discount: discount,
-    total: total,
+    items: pendingOrderData.orderItems,
+    subtotal: pendingOrderData.subtotal,
+    delivery: pendingOrderData.delivery,
+    discount: pendingOrderData.discount,
+    total: pendingOrderData.total,
     coupon: appliedCoupon,
+    paymentMethod: method,
     status: 'confirmed'
   };
 
@@ -557,13 +731,19 @@ async function checkout() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to place order.');
 
-    document.getElementById('order-id').textContent = '#' + orderId;
-    document.getElementById('modal').classList.add('show');
+    closePaymentModal();
+    cart = {};
+    appliedCoupon = null;
+    renderCart();
+    renderProducts();
+
+    showToast(`<i class="fa-solid fa-circle-check"></i> Order #${orderId} confirmed via ${method}!`, 'success');
+    showOrdersView();
   } catch (error) {
     showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
   }
 }
-window.checkout = checkout;
+window.processPayment = processPayment;
 
 // Modal Close logic
 function closeModal() {
@@ -950,14 +1130,56 @@ window.addEventListener('message', async (event) => {
 
 function handleSocialLogin(provider) {
   if (provider === 'Google') {
-    const authUrl = `${API_URL}/auth/google`;
-    const popup = window.open(authUrl, 'GoogleAuth', 'width=550,height=650');
-    if (!popup) {
-      showToast('<i class="fa-solid fa-triangle-exclamation"></i> Popup blocked. Please allow popups for Google sign-in.', 'error');
+    // If official Google Identity Services library is loaded
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: '294308312275-f3t0m4av9qouch5jecskrsgrmp9o7mnf.apps.googleusercontent.com',
+        callback: (response) => {
+          try {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            const profile = JSON.parse(jsonPayload);
+            currentUser = {
+              id: Date.now(),
+              name: profile.name || 'Google User',
+              email: profile.email,
+              avatar: profile.picture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
+              phone: '',
+              address: ''
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            closeAuthModal();
+            updateAuthUI();
+            showToast(`<i class="fa-solid fa-circle-check"></i> Signed in as ${currentUser.email}!`, 'success');
+          } catch (e) {
+            showToast('<i class="fa-solid fa-circle-xmark"></i> Google sign-in failed.', 'error');
+          }
+        },
+        auto_select: false
+      });
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Open direct Google OAuth Popup to accounts.google.com
+          openGoogleOAuthWindow();
+        }
+      });
+    } else {
+      openGoogleOAuthWindow();
     }
   }
 }
 window.handleSocialLogin = handleSocialLogin;
+
+function openGoogleOAuthWindow() {
+  const googleClientId = '294308312275-f3t0m4av9qouch5jecskrsgrmp9o7mnf.apps.googleusercontent.com';
+  const directGoogleUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent('http://localhost:3000/auth/google/callback')}&response_type=code&scope=profile%20email&prompt=select_account`;
+  const popup = window.open(directGoogleUrl, 'GoogleAuth', 'width=550,height=650');
+  if (!popup) {
+    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Popup blocked. Please allow popups for Google sign-in.', 'error');
+  }
+}
+window.openGoogleOAuthWindow = openGoogleOAuthWindow;
 
 // Forgot Password Modal Controls & Logic
 function openForgotPasswordModal() {
@@ -1146,23 +1368,55 @@ async function renderOrders() {
         </div>
       `).join('');
 
+      const isDelivered = order.status === 'delivered';
+      const isShipped = order.status === 'shipped';
+      const isReturned = order.status === 'return requested' || order.status === 'returned';
+
+      let trackerWidth = '35%';
+      if (isShipped) trackerWidth = '70%';
+      if (isDelivered || isReturned) trackerWidth = '100%';
+
       return `
         <div class="order-card">
           <div class="order-header-row">
             <div>
               <span class="order-id-label">#${order.id}</span>
-              <div class="order-date-label">${order.date}</div>
+              <div class="order-date-label">${order.date} • <span style="color:var(--primary); font-weight:600;">${order.paymentMethod || 'Paid'}</span></div>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <span class="order-status-badge ${order.status.replace(' ', '-')}">${order.status}</span>
+              <button class="add-btn" style="padding: 4px 10px; font-size:12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white;" onclick="downloadPDFInvoice('${order.id}')">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF
+              </button>
               <button class="add-btn" style="padding: 4px 10px; font-size:12px;" onclick="viewInvoice('${order.id}')">
-                <i class="fa-solid fa-file-invoice"></i> Invoice
+                <i class="fa-solid fa-file-invoice"></i> View
               </button>
               ${order.status === 'confirmed' || order.status === 'delivered' ? `
                 <button class="add-btn" style="padding: 4px 10px; font-size:12px; border: 1px solid var(--danger); background: var(--danger-bg); color: var(--danger);" onclick="initiateReturn('${order.id}')">
                   <i class="fa-solid fa-rotate-left"></i> Return
                 </button>
               ` : ''}
+            </div>
+          </div>
+
+          <!-- Step-by-Step Live Order Tracker -->
+          <div class="order-tracker-bar">
+            <div class="order-tracker-progress" style="width: ${trackerWidth};"></div>
+            <div class="tracker-step completed">
+              <div class="tracker-icon"><i class="fa-solid fa-cart-check"></i></div>
+              <div class="tracker-label">Placed</div>
+            </div>
+            <div class="tracker-step ${isShipped || isDelivered ? 'completed' : 'active'}">
+              <div class="tracker-icon"><i class="fa-solid fa-box"></i></div>
+              <div class="tracker-label">Packed</div>
+            </div>
+            <div class="tracker-step ${isShipped ? 'active' : isDelivered ? 'completed' : ''}">
+              <div class="tracker-icon"><i class="fa-solid fa-truck-fast"></i></div>
+              <div class="tracker-label">Shipped</div>
+            </div>
+            <div class="tracker-step ${isDelivered ? 'completed' : ''}">
+              <div class="tracker-icon"><i class="fa-solid fa-house-chimney-check"></i></div>
+              <div class="tracker-label">${isReturned ? 'Returned' : 'Delivered'}</div>
             </div>
           </div>
           
@@ -1183,6 +1437,25 @@ async function renderOrders() {
   }
 }
 window.renderOrders = renderOrders;
+
+async function downloadPDFInvoice(orderId) {
+  await viewInvoice(orderId);
+  const element = document.getElementById('invoice-print-area');
+  showToast('<i class="fa-solid fa-file-pdf"></i> Generating PDF Invoice...', 'success');
+  if (typeof html2pdf !== 'undefined') {
+    const opt = {
+      margin:       10,
+      filename:     `ShopEase_Invoice_${orderId}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  } else {
+    window.print();
+  }
+}
+window.downloadPDFInvoice = downloadPDFInvoice;
 
 function showOrdersView() {
   showView('orders');

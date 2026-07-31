@@ -162,99 +162,7 @@ passport.use(new GoogleStrategy({
 
 // ─── GOOGLE OAUTH ENDPOINTS ───
 app.get('/auth/google', (req, res, next) => {
-  const clientId = process.env.GOOGLE_CLIENT_ID || '';
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
-
-  const hasValidKeys = clientId.trim().length > 10 && 
-                       clientSecret.trim().length > 10 && 
-                       !clientId.includes('YOUR_GOOGLE_CLIENT_ID') && 
-                       !clientId.includes('your-google-client-id') &&
-                       !clientSecret.includes('placeholder_secret') &&
-                       !clientSecret.includes('YOUR_GOOGLE_CLIENT_SECRET');
-
-  if (hasValidKeys) {
-    return passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-  }
-
-  // Render guidance page with 1-click sign in as harishbabu.yg@gmail.com or hbabu8248@gmail.com
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Google Sign-In Setup</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; color: #0f172a; padding: 20px; }
-        .card { background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-        .logo { width: 36px; height: 36px; }
-        h3 { margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; }
-        .alert { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px; margin-bottom: 18px; font-size: 13px; color: #991b1b; line-height: 1.5; }
-        .steps { background: #f1f5f9; padding: 14px; border-radius: 10px; font-size: 12px; color: #334155; margin-bottom: 20px; line-height: 1.6; }
-        .steps ol { margin: 6px 0 0 0; padding-left: 20px; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        .btn-primary { background: #4285F4; color: white; border: none; padding: 12px 18px; border-radius: 10px; font-weight: 600; font-size: 14px; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
-        .btn-primary:hover { background: #3367d6; }
-        .email-badge { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 13px; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <div class="header">
-          <svg class="logo" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-          <div>
-            <h3>Google OAuth Authorization</h3>
-            <span style="font-size: 12px; color: #64748b;">ShopEase Authentication</span>
-          </div>
-        </div>
-
-        <div class="alert">
-          <strong>Notice: GOOGLE_CLIENT_SECRET Required</strong><br>
-          Google Cloud requires matching <strong>Client Secret</strong> for Client ID <code>294150...</code> to pass live authentication without <code>Error 401: invalid_client</code>.
-        </div>
-
-        <div class="steps">
-          <strong>To complete Google Cloud integration:</strong>
-          <ol>
-            <li>In Google Cloud Console, copy your <strong>Client Secret</strong> (starts with <code>GOCSPX-</code>)</li>
-            <li>Paste it into <code>.env</code> file under <code>GOOGLE_CLIENT_SECRET=</code></li>
-          </ol>
-        </div>
-
-        <div class="btn-group">
-          <button class="btn-primary" onclick="loginDirectly('Harish Babu', 'harishbabu.yg@gmail.com')">
-            Sign in as <span class="email-badge">harishbabu.yg@gmail.com</span>
-          </button>
-          <button class="btn-primary" style="background: #3b82f6;" onclick="loginDirectly('Harish Babu', 'hbabu8248@gmail.com')">
-            Sign in as <span class="email-badge" style="background:#eff6ff; color:#1d4ed8;">hbabu8248@gmail.com</span>
-          </button>
-        </div>
-      </div>
-
-      <script>
-        function loginDirectly(name, email) {
-          if (window.opener) {
-            window.opener.postMessage({
-              type: 'GOOGLE_AUTH_SUCCESS',
-              user: {
-                name: name,
-                email: email,
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80'
-              }
-            }, '*');
-          }
-          window.close();
-        }
-      </script>
-    </body>
-    </html>
-  `);
+  return passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' })(req, res, next);
 });
 
 app.get('/auth/google/callback', (req, res, next) => {
@@ -751,6 +659,11 @@ app.put('/orders/:id/status', (req, res) => {
   order.status = status;
   saveDB(db);
   res.json({ message: 'Return request submitted.' });
+});
+
+// Health Check Endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
 });
 
 // Root GET route
