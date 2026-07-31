@@ -10,19 +10,24 @@
 </head>
 <body class="admin-body">
 
+  <!-- AMBIENT GLOW ORBS -->
+  <div class="admin-glow-orb orb-1"></div>
+  <div class="admin-glow-orb orb-2"></div>
+
   <!-- ADMIN LOGIN SCREEN -->
   <div class="admin-login-screen" id="admin-login-screen">
     <div class="admin-login-card">
       <div class="admin-brand-icon">
-        <i class="fa-solid fa-shop"></i>
+        <i class="fa-solid fa-user-shield"></i>
       </div>
       <h2>ShopEase Owner Portal</h2>
       <p>Enter the store admin secret key to access your owner control panel.</p>
-      <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;">
         <div class="form-group" style="text-align: left;">
           <label for="admin-secret">Admin Secret Key</label>
           <div class="password-field-wrapper">
-            <input id="admin-secret" type="password" required placeholder="Enter admin secret (e.g. shopadmin123)">
+            <i class="fa-solid fa-key field-icon" style="position: absolute; left: 14px; top: 14px; color: #10b981; font-size: 14px;"></i>
+            <input id="admin-secret" type="password" required placeholder="Enter admin secret (e.g. shopadmin123)" style="padding-left: 40px;">
             <button type="button" class="password-toggle-btn" onclick="toggleAdminPassword()" aria-label="Toggle password visibility">
               <i class="fa-solid fa-eye"></i>
             </button>
@@ -32,7 +37,7 @@
           Access Admin Dashboard <i class="fa-solid fa-arrow-right"></i>
         </button>
       </form>
-      <p class="admin-login-hint"><i class="fa-solid fa-circle-info"></i> Default Secret: <code>shopadmin123</code> (configured in <code>.env</code>)</p>
+      <p class="admin-login-hint"><i class="fa-solid fa-shield-halved"></i> Default Secret: <code>shopadmin123</code></p>
     </div>
   </div>
 
@@ -42,9 +47,9 @@
     <aside class="admin-sidebar">
       <div class="admin-sidebar-header">
         <div class="logo">
-          <i class="fa-solid fa-shop" style="color: var(--accent);"></i> Shop<span>Ease</span>
+          <i class="fa-solid fa-bag-shopping" style="color: #10b981;"></i> Shop<span style="color: #10b981;">Ease</span>
         </div>
-        <span class="admin-badge">OWNER</span>
+        <span class="admin-badge"><i class="fa-solid fa-circle" style="font-size: 6px; color: #10b981; margin-right: 4px;"></i> OWNER</span>
       </div>
 
       <nav class="admin-nav">
