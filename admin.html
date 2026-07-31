@@ -3,98 +3,370 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopEase Admin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>ShopEase Owner & Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="admin-body">
+
+  <!-- ADMIN LOGIN SCREEN -->
   <div class="admin-login-screen" id="admin-login-screen">
     <div class="admin-login-card">
-      <h2>ShopEase Admin Login</h2>
-      <p>Enter the admin secret to access the dashboard.</p>
-      <form id="admin-login-form">
-        <label for="admin-secret">Admin Secret</label>
-        <div class="password-field-wrapper">
-          <input id="admin-secret" type="password" required placeholder="Enter admin secret">
-          <button type="button" class="password-toggle-btn" onclick="toggleAdminPassword()" aria-label="Toggle password visibility">
-            <i class="fa-solid fa-eye"></i>
-          </button>
+      <div class="admin-brand-icon">
+        <i class="fa-solid fa-shop"></i>
+      </div>
+      <h2>ShopEase Owner Portal</h2>
+      <p>Enter the store admin secret key to access your owner control panel.</p>
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+        <div class="form-group" style="text-align: left;">
+          <label for="admin-secret">Admin Secret Key</label>
+          <div class="password-field-wrapper">
+            <input id="admin-secret" type="password" required placeholder="Enter admin secret (e.g. shopadmin123)">
+            <button type="button" class="password-toggle-btn" onclick="toggleAdminPassword()" aria-label="Toggle password visibility">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
         </div>
-        <button type="button" class="admin-login-btn" onclick="handleAdminLogin(event)">Sign In</button>
+        <button type="submit" class="admin-login-btn">
+          Access Admin Dashboard <i class="fa-solid fa-arrow-right"></i>
+        </button>
       </form>
-      <p class="admin-login-hint">The secret is configured in <code>.env</code>.</p>
+      <p class="admin-login-hint"><i class="fa-solid fa-circle-info"></i> Default Secret: <code>shopadmin123</code> (configured in <code>.env</code>)</p>
     </div>
   </div>
 
-  <main class="admin-page hidden" id="admin-dashboard">
-    <header class="admin-header">
-      <div>
-        <h1>ShopEase Admin</h1>
-        <p>Order management, user administration, and product analytics.</p>
+  <!-- MAIN ADMIN DASHBOARD LAYOUT -->
+  <div class="admin-layout hidden" id="admin-dashboard">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="logo">
+          <i class="fa-solid fa-shop" style="color: var(--accent);"></i> Shop<span>Ease</span>
+        </div>
+        <span class="admin-badge">OWNER</span>
       </div>
-      <div>
-        <button class="admin-logout-btn" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
-      </div>
-    </header>
 
-    <section class="admin-cards">
-      <article class="admin-card" id="stat-users">
-        <h3>Registered Users</h3>
-        <p class="admin-stat">0</p>
-      </article>
-      <article class="admin-card" id="stat-orders">
-        <h3>Total Orders</h3>
-        <p class="admin-stat">0</p>
-      </article>
-      <article class="admin-card" id="stat-sales">
-        <h3>Total Sales</h3>
-        <p class="admin-stat">₹0</p>
-      </article>
-      <article class="admin-card" id="stat-pending">
-        <h3>Pending Returns</h3>
-        <p class="admin-stat">0</p>
-      </article>
-    </section>
+      <nav class="admin-nav">
+        <button class="admin-nav-item active" id="nav-btn-analytics" onclick="switchAdminTab('analytics')">
+          <i class="fa-solid fa-chart-line"></i> Analytics & Overview
+        </button>
+        <button class="admin-nav-item" id="nav-btn-orders" onclick="switchAdminTab('orders')">
+          <i class="fa-solid fa-boxes-packing"></i> Order Management
+          <span class="admin-nav-count" id="admin-badge-orders">0</span>
+        </button>
+        <button class="admin-nav-item" id="nav-btn-products" onclick="switchAdminTab('products')">
+          <i class="fa-solid fa-boxes-stacked"></i> Inventory Products
+          <span class="admin-nav-count" id="admin-badge-products">0</span>
+        </button>
+        <button class="admin-nav-item" id="nav-btn-users" onclick="switchAdminTab('users')">
+          <i class="fa-solid fa-users"></i> Customer Directory
+        </button>
+        <button class="admin-nav-item" id="nav-btn-settings" onclick="switchAdminTab('settings')">
+          <i class="fa-solid fa-sliders"></i> Store Settings
+        </button>
+      </nav>
 
-    <section class="admin-section">
-      <div class="admin-section-header">
-        <h2>Recent Orders</h2>
+      <div class="admin-sidebar-footer">
+        <div class="admin-user-info">
+          <i class="fa-solid fa-user-shield"></i>
+          <div>
+            <strong>Store Administrator</strong>
+            <span>Active Session</span>
+          </div>
+        </div>
+        <button class="admin-logout-btn" onclick="logoutAdmin()" title="Sign Out">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
       </div>
-      <div class="admin-table-wrapper">
-        <table class="admin-table" id="orders-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>User Email</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+    </aside>
 
-    <section class="admin-section">
-      <div class="admin-section-header">
-        <h2>Users</h2>
-      </div>
-      <div class="admin-table-wrapper">
-        <table class="admin-table" id="users-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+    <!-- CONTENT AREA -->
+    <main class="admin-content">
+
+      <!-- TOP BAR HEADER -->
+      <header class="admin-topbar">
+        <div>
+          <h1 id="admin-page-title">Analytics & Store Overview</h1>
+          <p id="admin-page-subtitle">Real-time performance metrics, sales volume, and order management.</p>
+        </div>
+        <div class="admin-topbar-actions">
+          <a href="index.html" target="_blank" class="admin-btn-secondary">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Storefront
+          </a>
+          <button class="admin-btn-primary" onclick="renderAdminDashboard()">
+            <i class="fa-solid fa-rotate"></i> Refresh Data
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: ANALYTICS & OVERVIEW -->
+      <section id="admin-tab-analytics" class="admin-tab-pane active">
+        <!-- STAT CARDS -->
+        <div class="admin-cards">
+          <article class="admin-card">
+            <div class="admin-card-icon" style="background: rgba(22, 163, 74, 0.1); color: var(--accent);">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+            <div>
+              <h3>Total Sales Revenue</h3>
+              <p class="admin-stat" id="stat-sales">₹0</p>
+              <span class="admin-stat-sub"><i class="fa-solid fa-arrow-trend-up"></i> Store Revenue</span>
+            </div>
+          </article>
+
+          <article class="admin-card">
+            <div class="admin-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+              <i class="fa-solid fa-truck-ramp-box"></i>
+            </div>
+            <div>
+              <h3>Total Orders</h3>
+              <p class="admin-stat" id="stat-orders">0</p>
+              <span class="admin-stat-sub">Lifetime Orders</span>
+            </div>
+          </article>
+
+          <article class="admin-card">
+            <div class="admin-card-icon" style="background: rgba(147, 51, 234, 0.1); color: #9333ea;">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <h3>Registered Customers</h3>
+              <p class="admin-stat" id="stat-users">0</p>
+              <span class="admin-stat-sub">Active Accounts</span>
+            </div>
+          </article>
+
+          <article class="admin-card">
+            <div class="admin-card-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+              <i class="fa-solid fa-rotate-left"></i>
+            </div>
+            <div>
+              <h3>Pending Returns</h3>
+              <p class="admin-stat" id="stat-pending">0</p>
+              <span class="admin-stat-sub">Requires Action</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- RECENT SALES ACTIVITY & CATEGORY BREAKDOWN -->
+        <div class="admin-grid-2">
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> Recent Order Activity</h2>
+              <button class="dash-link-btn" onclick="switchAdminTab('orders')">View All</button>
+            </div>
+            <div class="admin-table-wrapper">
+              <table class="admin-table" id="recent-orders-overview-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2><i class="fa-solid fa-pie-chart" style="color: #3b82f6;"></i> Store Inventory Health</h2>
+              <button class="dash-link-btn" onclick="openAddProductModal()"><i class="fa-solid fa-plus"></i> Add Product</button>
+            </div>
+            <div class="admin-health-box">
+              <div class="health-metric">
+                <span>Active Products</span>
+                <strong id="health-total-products">0</strong>
+              </div>
+              <div class="health-metric">
+                <span>In Stock Items</span>
+                <strong id="health-instock-products" style="color: var(--success);">0</strong>
+              </div>
+              <div class="health-metric">
+                <span>Low Stock (<15)</span>
+                <strong id="health-lowstock-products" style="color: var(--danger);">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: ORDER MANAGEMENT PIPELINE -->
+      <section id="admin-tab-orders" class="admin-tab-pane" style="display: none;">
+        <div class="admin-section">
+          <div class="admin-section-header">
+            <h2>Order Pipeline & Status Control</h2>
+            <div class="admin-filter-bar">
+              <input type="text" id="admin-order-search" placeholder="Search order ID or email..." oninput="filterAdminOrders()" class="admin-search-input">
+              <select id="admin-order-status-filter" onchange="filterAdminOrders()" class="admin-select">
+                <option value="all">All Statuses</option>
+                <option value="Placed">Placed</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="return requested">Return Requested</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table" id="orders-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer Email</th>
+                  <th>Order Items</th>
+                  <th>Placed Date</th>
+                  <th>Status Pipeline</th>
+                  <th>Total Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: INVENTORY PRODUCTS CRUD -->
+      <section id="admin-tab-products" class="admin-tab-pane" style="display: none;">
+        <div class="admin-section">
+          <div class="admin-section-header">
+            <h2>Manage Store Products</h2>
+            <button class="admin-btn-primary" onclick="openAddProductModal()">
+              <i class="fa-solid fa-plus"></i> Add New Product
+            </button>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table" id="products-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Selling Price</th>
+                  <th>Original Price</th>
+                  <th>Stock Quantity</th>
+                  <th>Badge</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: CUSTOMER DIRECTORY -->
+      <section id="admin-tab-users" class="admin-tab-pane" style="display: none;">
+        <div class="admin-section">
+          <div class="admin-section-header">
+            <h2>Registered Customer Accounts</h2>
+          </div>
+          <div class="admin-table-wrapper">
+            <table class="admin-table" id="users-table">
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Email Address</th>
+                  <th>Phone Number</th>
+                  <th>Shipping Address</th>
+                  <th>Joined Date</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: STORE SETTINGS -->
+      <section id="admin-tab-settings" class="admin-tab-pane" style="display: none;">
+        <div class="admin-section" style="max-width: 600px;">
+          <div class="admin-section-header">
+            <h2>Store Configuration</h2>
+          </div>
+          <form id="admin-settings-form" onsubmit="handleSaveStoreSettings(event)">
+            <div class="form-group">
+              <label for="setting-secret">Admin Secret Password</label>
+              <input type="text" id="setting-secret" value="shopadmin123" class="dash-input">
+            </div>
+            <div class="form-group">
+              <label for="setting-shipping">Default Delivery Fee (₹)</label>
+              <input type="number" id="setting-shipping" value="40" class="dash-input">
+            </div>
+            <div class="form-group">
+              <label for="setting-free-shipping">Free Shipping Threshold (₹)</label>
+              <input type="number" id="setting-free-shipping" value="2000" class="dash-input">
+            </div>
+            <button type="submit" class="admin-btn-primary">
+              Save Settings <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ADD / EDIT PRODUCT MODAL -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="auth-card" style="max-width: 550px;">
+      <button class="auth-close-btn" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 id="product-modal-title" style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 16px;">
+        <i class="fa-solid fa-box" style="color: var(--accent);"></i> Add New Product
+      </h2>
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <input type="hidden" id="edit-product-id">
+        <div class="form-group">
+          <label for="prod-name">Product Name</label>
+          <input type="text" id="prod-name" required placeholder="e.g. Wireless Gaming Mouse" class="dash-input">
+        </div>
+        <div class="admin-form-row">
+          <div class="form-group">
+            <label for="prod-category">Category</label>
+            <select id="prod-category" required class="dash-input">
+              <option value="electronics">Electronics</option>
+              <option value="fashion">Fashion</option>
+              <option value="accessories">Accessories</option>
+              <option value="books">Books</option>
+              <option value="home">Home</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="prod-badge">Badge (Optional)</label>
+            <input type="text" id="prod-badge" placeholder="e.g. SALE, NEW, HOT" class="dash-input">
+          </div>
+        </div>
+        <div class="admin-form-row">
+          <div class="form-group">
+            <label for="prod-price">Price (₹)</label>
+            <input type="number" id="prod-price" required placeholder="1499" class="dash-input">
+          </div>
+          <div class="form-group">
+            <label for="prod-original">Original Price (₹)</label>
+            <input type="number" id="prod-original" placeholder="1999" class="dash-input">
+          </div>
+          <div class="form-group">
+            <label for="prod-stock">Stock Quantity</label>
+            <input type="number" id="prod-stock" value="50" required class="dash-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="prod-image">Image URL (Unsplash or direct image link)</label>
+          <input type="url" id="prod-image" required placeholder="https://images.unsplash.com/..." class="dash-input">
+        </div>
+        <button type="submit" class="admin-btn-primary" style="width: 100%; margin-top: 12px;">
+          Save Product <i class="fa-solid fa-check"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script src="admin.js" defer></script>
 </body>
 </html>

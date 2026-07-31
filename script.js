@@ -155,14 +155,15 @@ function showView(viewName) {
   const cartView = document.getElementById('cart-view');
   const ordersView = document.getElementById('orders-view');
   const supportView = document.getElementById('support-view');
+  const dashboardView = document.getElementById('dashboard-view');
   const heroSection = document.querySelector('.hero-carousel');
 
   // Hide all views first
-  productsView.style.display = 'none';
-  cartView.style.display = 'none';
+  if (productsView) productsView.style.display = 'none';
+  if (cartView) cartView.style.display = 'none';
   if (ordersView) ordersView.style.display = 'none';
   if (supportView) supportView.style.display = 'none';
-
+  if (dashboardView) dashboardView.style.display = 'none';
   if (heroSection) heroSection.style.display = 'none';
 
   // De-activate links in navbar
@@ -190,6 +191,14 @@ function showView(viewName) {
       document.getElementById('support-name').value = currentUser.name || '';
       document.getElementById('support-email').value = currentUser.email || '';
     }
+  } else if (viewName === 'dashboard') {
+    if (!currentUser) {
+      showToast('<i class="fa-solid fa-lock"></i> Please sign in to access your Customer Dashboard.', 'error');
+      openAuthModal();
+      return;
+    }
+    if (dashboardView) dashboardView.style.display = 'block';
+    renderDashboardContent();
   }
 }
 window.showView = showView;
@@ -681,6 +690,7 @@ function updateAuthUI() {
             <div class="user-dropdown-name">Hi, ${currentUser.name}</div>
             <div class="user-dropdown-email">${currentUser.email}</div>
           </div>
+          <div class="user-dropdown-item" onclick="showView('dashboard')"><i class="fa-solid fa-crown" style="color:#f59e0b;"></i> Customer Dashboard</div>
           <div class="user-dropdown-item" onclick="openProfileModal()"><i class="fa-solid fa-user-gear"></i> My Profile</div>
           <div class="user-dropdown-item" onclick="showOrdersView()"><i class="fa-solid fa-box-open"></i> My Orders</div>
           <div class="user-dropdown-item" onclick="showToast('<i class=\'fa-solid fa-gift\'></i> Coupons loaded!', 'success')"><i class="fa-solid fa-ticket"></i> Offers</div>
@@ -859,10 +869,52 @@ function handleSignOut() {
 }
 window.handleSignOut = handleSignOut;
 
+window.addEventListener('message', async (event) => {
+  if (event.data && event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+    const googleUser = event.data.user;
+    try {
+      const response = await fetch(`${API_URL}/social-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(googleUser)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        closeAuthModal();
+        updateAuthUI();
+        showToast(`<i class="fa-solid fa-circle-check"></i> Welcome back, ${currentUser.name}!`, 'success');
+      } else {
+        throw new Error(data.message || 'Social login failed');
+      }
+    } catch (err) {
+      currentUser = {
+        id: Date.now(),
+        name: googleUser.name || 'Google User',
+        email: googleUser.email || 'google@user.com',
+        avatar: googleUser.avatar || '',
+        phone: '',
+        address: ''
+      };
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      closeAuthModal();
+      updateAuthUI();
+      showToast(`<i class="fa-solid fa-circle-check"></i> Welcome back, ${currentUser.name}!`, 'success');
+    }
+  } else if (event.data && event.data.type === 'GOOGLE_AUTH_ERROR') {
+    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${event.data.message}`, 'error');
+  }
+});
+
 function handleSocialLogin(provider) {
-  // Open the Google authentication URL in a new popup window
-  const authUrl = 'http://localhost:3000/auth/google';
-  window.open(authUrl, '_blank', 'width=500,height=600');
+  if (provider === 'Google') {
+    const authUrl = `${API_URL}/auth/google`;
+    const popup = window.open(authUrl, 'GoogleAuth', 'width=550,height=650');
+    if (!popup) {
+      showToast('<i class="fa-solid fa-triangle-exclamation"></i> Popup blocked. Please allow popups for Google sign-in.', 'error');
+    }
+  }
 }
 window.handleSocialLogin = handleSocialLogin;
 
@@ -1660,8 +1712,291 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroCarousel();
 });
 
+// ── CLIENT / CUSTOMER DASHBOARD FUNCTIONS ──
+function switchDashboardTab(tabName) {
+  const tabs = ['overview', 'orders', 'wishlist', 'settings'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tab-dash-${t}`);
+    const pane = document.getElementById(`dash-pane-${t}`);
+    if (btn) btn.classList.toggle('active', t === tabName);
+    if (pane) pane.style.display = (t === tabName) ? 'block' : 'none';
+  });
+}
+window.switchDashboardTab = switchDashboardTab;
+
+async function renderDashboardContent() {
+  if (!currentUser) return;
+
+  // Header info
+  document.getElementById('dash-user-name').textContent = `Welcome, ${currentUser.name}!`;
+  document.getElementById('dash-user-email').textContent = currentUser.email;
+
+  const avatarContainer = document.getElementById('dash-avatar-img');
+  if (avatarContainer) {
+    if (currentUser.avatar && currentUser.avatar.startsWith('data:image')) {
+      avatarContainer.innerHTML = `<img src="${currentUser.avatar}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    } else {
+      avatarContainer.innerHTML = `<i class="fa-solid fa-user"></i>`;
+    }
+  }
+
+  // Pre-fill profile settings inputs
+  document.getElementById('dash-input-name').value = currentUser.name || '';
+  document.getElementById('dash-input-email').value = currentUser.email || '';
+  document.getElementById('dash-input-phone').value = currentUser.phone || '';
+  document.getElementById('dash-input-address').value = currentUser.address || '';
+
+  document.getElementById('dash-overview-name').textContent = currentUser.name || 'Customer Name';
+  document.getElementById('dash-overview-phone').innerHTML = `<i class="fa-solid fa-phone"></i> Phone: ${currentUser.phone || 'Not set'}`;
+  document.getElementById('dash-overview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> Address: ${currentUser.address || 'No saved address'}`;
+
+  // Fetch orders for customer
+  let orders = [];
+  try {
+    const res = await fetch(`${API_URL}/orders?email=${encodeURIComponent(currentUser.email)}`);
+    if (res.ok) orders = await res.json();
+  } catch (err) {
+    const localOrders = JSON.parse(localStorage.getItem('shopease_orders') || '[]');
+    orders = localOrders.filter(o => o.email === currentUser.email);
+  }
+
+  // Compute metrics
+  const totalSpent = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const activeOrders = orders.filter(o => ['placed', 'processing', 'shipped'].includes((o.status || '').toLowerCase()));
+  const wishlistCount = Object.keys(likedProducts).length;
+
+  document.getElementById('dash-stat-orders').textContent = orders.length;
+  document.getElementById('dash-stat-spent').textContent = `₹${totalSpent.toLocaleString()}`;
+  document.getElementById('dash-stat-wishlist').textContent = wishlistCount;
+  document.getElementById('dash-stat-in-transit').textContent = activeOrders.length;
+
+  // Render recent order overview
+  const latestOrderContainer = document.getElementById('dash-latest-order-container');
+  if (orders.length > 0) {
+    const latest = orders[0];
+    latestOrderContainer.innerHTML = renderOrderProgressCardHTML(latest);
+  } else {
+    latestOrderContainer.innerHTML = `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:20px;">No recent orders. Placed orders will track here.</div>`;
+  }
+
+  // Render orders tab list
+  renderDashboardOrders(orders);
+
+  // Render wishlist tab grid
+  renderDashboardWishlist();
+}
+window.renderDashboardContent = renderDashboardContent;
+
+function getPipelineStepNumber(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'delivered') return 4;
+  if (s === 'shipped') return 3;
+  if (s === 'processing') return 2;
+  return 1; // Placed
+}
+
+function renderOrderProgressCardHTML(order) {
+  const step = getPipelineStepNumber(order.status);
+  return `
+    <div class="dash-order-progress-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <strong>#${order.id}</strong>
+        <span class="admin-status-pill status-${order.status === 'Delivered' ? 'success' : 'primary'}">${order.status || 'Placed'}</span>
+      </div>
+      
+      <!-- Visual Pipeline Progress Bar -->
+      <div class="dash-pipeline-bar">
+        <div class="pipeline-step ${step >= 1 ? 'completed' : ''}">
+          <div class="step-dot"><i class="fa-solid fa-check"></i></div>
+          <span>Placed</span>
+        </div>
+        <div class="pipeline-step ${step >= 2 ? 'completed' : ''}">
+          <div class="step-dot"><i class="fa-solid fa-box"></i></div>
+          <span>Processing</span>
+        </div>
+        <div class="pipeline-step ${step >= 3 ? 'completed' : ''}">
+          <div class="step-dot"><i class="fa-solid fa-truck"></i></div>
+          <span>Shipped</span>
+        </div>
+        <div class="pipeline-step ${step >= 4 ? 'completed' : ''}">
+          <div class="step-dot"><i class="fa-solid fa-house-chimney"></i></div>
+          <span>Delivered</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:14px; font-size:13px; display:flex; justify-content:space-between; color:var(--text-secondary);">
+        <span>Total: <strong>₹${order.total.toLocaleString()}</strong></span>
+        <span>Items: ${(order.items || []).length} item(s)</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderDashboardOrders(orders) {
+  const listContainer = document.getElementById('dash-orders-list');
+  if (!listContainer) return;
+
+  if (orders.length === 0) {
+    listContainer.innerHTML = `
+      <div class="dash-card" style="text-align:center; padding:40px; color:var(--text-muted);">
+        <i class="fa-solid fa-box-open" style="font-size:36px; margin-bottom:12px; display:block;"></i>
+        You haven't placed any orders yet. Browse our store products and place your first order!
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = orders.map(o => `
+    <div class="dash-card" style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
+        <div>
+          <span style="font-size:16px; font-weight:700; font-family:'Syne', sans-serif;">Order #${o.id}</span>
+          <div style="font-size:12px; color:var(--text-muted);">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'Recent'}</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span class="admin-status-pill status-${o.status === 'Delivered' ? 'success' : 'primary'}">${o.status || 'Placed'}</span>
+          <button class="add-btn" onclick="viewInvoice('${o.id}')"><i class="fa-solid fa-file-invoice"></i> Invoice</button>
+          ${['placed', 'processing', 'delivered'].includes((o.status || '').toLowerCase()) ? `
+            <button class="add-btn" style="border:1px solid var(--danger); background:var(--danger-bg); color:var(--danger);" onclick="initiateReturn('${o.id}')">
+              <i class="fa-solid fa-rotate-left"></i> Return
+            </button>
+          ` : ''}
+        </div>
+      </div>
+
+      ${renderOrderProgressCardHTML(o)}
+
+      <div style="margin-top:16px;">
+        ${(o.items || []).map(item => `
+          <div style="display:flex; align-items:center; gap:12px; padding:6px 0;">
+            <img src="${item.image}" alt="${item.name}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;">
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13px;">${item.name}</div>
+              <div style="font-size:12px; color:var(--text-secondary);">₹${item.price.toLocaleString()} × ${item.qty}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDashboardWishlist() {
+  const grid = document.getElementById('dash-wishlist-grid');
+  if (!grid) return;
+
+  const wishlistProducts = PRODUCTS.filter(p => !!likedProducts[p.id]);
+
+  if (wishlistProducts.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">Your wishlist is empty. Click the heart icon on any product to save it here!</div>`;
+    return;
+  }
+
+  grid.innerHTML = wishlistProducts.map(p => `
+    <div class="product-card" onclick="openProductDetail(${p.id})">
+      <div class="product-img-wrap">
+        <img src="${p.image || p.images[0]}" alt="${p.name}">
+        <button class="like-btn-card liked" onclick="event.stopPropagation(); toggleLike(${p.id}, this)">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+      </div>
+      <div class="product-body">
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="price-row">
+          <div class="product-price">₹${p.price.toLocaleString()}</div>
+          <button class="add-btn" onclick="event.stopPropagation(); addToCart(${p.id})">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handleDashboardSettingsSubmit(event) {
+  event.preventDefault();
+  if (!currentUser) return;
+
+  const name = document.getElementById('dash-input-name').value.trim();
+  const email = document.getElementById('dash-input-email').value.trim().toLowerCase();
+  const phone = document.getElementById('dash-input-phone').value.trim();
+  const address = document.getElementById('dash-input-address').value.trim();
+
+  try {
+    const res = await fetch(`${API_URL}/user/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentEmail: currentUser.email, name, email, phone, address })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Profile update failed.');
+
+    currentUser = data;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    updateAuthUI();
+    await renderDashboardContent();
+    showToast('<i class="fa-solid fa-circle-check"></i> Profile & Delivery details updated!', 'success');
+  } catch (err) {
+    currentUser.name = name;
+    currentUser.email = email;
+    currentUser.phone = phone;
+    currentUser.address = address;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    updateAuthUI();
+    renderDashboardContent();
+    showToast('<i class="fa-solid fa-circle-check"></i> Profile updated locally!', 'success');
+  }
+}
+window.handleDashboardSettingsSubmit = handleDashboardSettingsSubmit;
+
+function handleLogout() {
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  updateAuthUI();
+  showView('products');
+  showToast('<i class="fa-solid fa-right-from-bracket"></i> You have signed out.', 'error');
+}
+window.handleLogout = handleLogout;
+
+// Fetch products from backend DB if server is online
+async function fetchBackendProducts() {
+  try {
+    const res = await fetch(`${API_URL}/api/products`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.length > 0) {
+        data.forEach(bp => {
+          const idx = PRODUCTS.findIndex(p => p.id === bp.id);
+          if (idx !== -1) {
+            PRODUCTS[idx] = { ...PRODUCTS[idx], ...bp };
+          } else {
+            PRODUCTS.push({
+              id: bp.id,
+              name: bp.name,
+              category: bp.category,
+              price: bp.price,
+              original: bp.originalPrice,
+              rating: bp.rating || 4.5,
+              badge: bp.badge,
+              badgeType: bp.badge ? 'new' : '',
+              image: bp.image,
+              images: [bp.image]
+            });
+          }
+        });
+        renderProducts();
+      }
+    }
+  } catch (e) {
+    // Offline mode silently falls back to hardcoded catalog
+  }
+}
+fetchBackendProducts();
+
 updateAuthUI();
 renderProducts();
 renderCart();
 renderRecentlyViewed();
 showView('products'); // initialize default view
+

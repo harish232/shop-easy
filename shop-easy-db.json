@@ -1,0 +1,102 @@
+{
+  "users": [],
+  "orders": [],
+  "products": [
+    {
+      "id": 1,
+      "name": "Noise-Canceling Wireless Headphones",
+      "category": "electronics",
+      "price": 2999,
+      "originalPrice": 4999,
+      "rating": 4.8,
+      "badge": "BESTSELLER",
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
+      "stock": 45,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 2,
+      "name": "Minimalist Leather Watch",
+      "category": "fashion",
+      "price": 1849,
+      "originalPrice": 2499,
+      "rating": 4.6,
+      "badge": "POPULAR",
+      "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
+      "stock": 30,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 3,
+      "name": "Smart Fitness Tracker Band",
+      "category": "electronics",
+      "price": 1299,
+      "originalPrice": 1999,
+      "rating": 4.4,
+      "badge": "SALE",
+      "image": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=500&q=80",
+      "stock": 60,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 4,
+      "name": "Designer UV Sunglasses",
+      "category": "accessories",
+      "price": 899,
+      "originalPrice": 1499,
+      "rating": 4.5,
+      "badge": "TRENDING",
+      "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80",
+      "stock": 25,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 5,
+      "name": "Ergonomic Mechanical Keyboard",
+      "category": "electronics",
+      "price": 3499,
+      "originalPrice": 4999,
+      "rating": 4.9,
+      "badge": "HOT",
+      "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+      "stock": 20,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 6,
+      "name": "Premium Leather Crossbody Bag",
+      "category": "fashion",
+      "price": 2499,
+      "originalPrice": 3299,
+      "rating": 4.7,
+      "badge": "NEW",
+      "image": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&q=80",
+      "stock": 15,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 7,
+      "name": "Portable Bluetooth Speaker",
+      "category": "electronics",
+      "price": 1599,
+      "originalPrice": 2299,
+      "rating": 4.3,
+      "badge": "",
+      "image": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&q=80",
+      "stock": 50,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    },
+    {
+      "id": 8,
+      "name": "Stainless Steel Water Bottle",
+      "category": "home",
+      "price": 649,
+      "originalPrice": 999,
+      "rating": 4.6,
+      "badge": "ECO",
+      "image": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&q=80",
+      "stock": 80,
+      "created_at": "2026-07-28T08:18:30.525Z"
+    }
+  ]
+}

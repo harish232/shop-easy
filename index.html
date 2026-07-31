@@ -26,6 +26,7 @@
         <a href="#" onclick="showView('products'); return false;">Accessories</a>
         <a href="#" onclick="showView('products'); return false;">Books</a>
         <a href="#" onclick="showView('support'); return false;">Support</a>
+        <a href="admin.html" target="_blank" style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-user-shield"></i> Admin Portal</a>
       </div>
       <div class="nav-actions">
         <div class="search-box">
@@ -318,7 +319,157 @@
             </form>
           </div>
         </div>
+    <!-- VIEW 5: CLIENT / CUSTOMER DASHBOARD VIEW -->
+    <div id="dashboard-view" class="view-container" style="display: none;">
+      <!-- Customer Header Profile Banner -->
+      <div class="dash-profile-banner">
+        <div class="dash-avatar-wrapper">
+          <div class="dash-avatar" id="dash-avatar-img"><i class="fa-solid fa-user"></i></div>
+        </div>
+        <div class="dash-header-info">
+          <div class="dash-user-badge"><i class="fa-solid fa-crown" style="color: #f59e0b;"></i> Customer Account</div>
+          <h2 id="dash-user-name">Welcome Back!</h2>
+          <p id="dash-user-email">user@example.com</p>
+        </div>
+        <div class="dash-header-actions">
+          <button class="dash-action-btn primary" onclick="switchDashboardTab('settings')">
+            <i class="fa-solid fa-user-pen"></i> Edit Profile
+          </button>
+          <button class="dash-action-btn danger" onclick="handleLogout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+          </button>
+        </div>
       </div>
+
+      <!-- Quick Stats Counters -->
+      <div class="dash-stats-grid">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: rgba(22, 163, 74, 0.1); color: var(--accent);">
+            <i class="fa-solid fa-bag-shopping"></i>
+          </div>
+          <div>
+            <div class="dash-stat-value" id="dash-stat-orders">0</div>
+            <div class="dash-stat-label">Total Orders</div>
+          </div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+          </div>
+          <div>
+            <div class="dash-stat-value" id="dash-stat-spent">₹0</div>
+            <div class="dash-stat-label">Total Spent</div>
+          </div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+          <div>
+            <div class="dash-stat-value" id="dash-stat-wishlist">0</div>
+            <div class="dash-stat-label">Wishlist Items</div>
+          </div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <div>
+            <div class="dash-stat-value" id="dash-stat-in-transit">0</div>
+            <div class="dash-stat-label">Active Orders</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Nav Tabs -->
+      <div class="dash-tabs">
+        <button class="dash-tab active" id="tab-dash-overview" onclick="switchDashboardTab('overview')">
+          <i class="fa-solid fa-gauge-high"></i> Overview
+        </button>
+        <button class="dash-tab" id="tab-dash-orders" onclick="switchDashboardTab('orders')">
+          <i class="fa-solid fa-box-open"></i> My Orders & Tracker
+        </button>
+        <button class="dash-tab" id="tab-dash-wishlist" onclick="switchDashboardTab('wishlist')">
+          <i class="fa-solid fa-heart"></i> Saved Wishlist
+        </button>
+        <button class="dash-tab" id="tab-dash-settings" onclick="switchDashboardTab('settings')">
+          <i class="fa-solid fa-sliders"></i> Account Settings
+        </button>
+      </div>
+
+      <!-- Tab Pane 1: Overview -->
+      <div id="dash-pane-overview" class="dash-pane active">
+        <div class="dash-grid-2">
+          <!-- Profile & Shipping Card -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3><i class="fa-solid fa-address-card" style="color: var(--accent);"></i> Default Delivery Address</h3>
+              <button class="dash-link-btn" onclick="switchDashboardTab('settings')">Edit</button>
+            </div>
+            <div class="dash-address-box">
+              <div class="dash-address-name" id="dash-overview-name">Customer Name</div>
+              <div class="dash-address-line" id="dash-overview-phone"><i class="fa-solid fa-phone"></i> Phone: Not set</div>
+              <div class="dash-address-line" id="dash-overview-address"><i class="fa-solid fa-location-dot"></i> Address: No saved delivery address provided yet.</div>
+            </div>
+          </div>
+
+          <!-- Latest Order Progress -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i> Recent Order Progress</h3>
+              <button class="dash-link-btn" onclick="switchDashboardTab('orders')">View Orders</button>
+            </div>
+            <div id="dash-latest-order-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Pane 2: Orders & Tracker -->
+      <div id="dash-pane-orders" class="dash-pane" style="display: none;">
+        <div id="dash-orders-list">
+          <!-- Order Cards with Pipeline Progress Bar rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab Pane 3: Wishlist -->
+      <div id="dash-pane-wishlist" class="dash-pane" style="display: none;">
+        <div class="product-grid" id="dash-wishlist-grid">
+          <!-- Wishlist items -->
+        </div>
+      </div>
+
+      <!-- Tab Pane 4: Settings -->
+      <div id="dash-pane-settings" class="dash-pane" style="display: none;">
+        <div class="dash-card" style="max-width: 650px;">
+          <div class="dash-card-header">
+            <h3><i class="fa-solid fa-user-gear" style="color: var(--accent);"></i> Account & Delivery Details</h3>
+          </div>
+          <form id="dash-settings-form" onsubmit="handleDashboardSettingsSubmit(event)">
+            <div class="form-group">
+              <label for="dash-input-name">Full Name</label>
+              <input type="text" id="dash-input-name" required class="dash-input">
+            </div>
+            <div class="form-group">
+              <label for="dash-input-email">Email Address</label>
+              <input type="email" id="dash-input-email" required class="dash-input">
+            </div>
+            <div class="form-group">
+              <label for="dash-input-phone">Phone Number</label>
+              <input type="tel" id="dash-input-phone" placeholder="+91 98765 43210" class="dash-input">
+            </div>
+            <div class="form-group">
+              <label for="dash-input-address">Default Delivery Address</label>
+              <textarea id="dash-input-address" rows="3" placeholder="Door No, Street Name, City, Pincode" class="dash-input"></textarea>
+            </div>
+            <button type="submit" class="auth-submit-btn" style="width: auto; padding: 12px 32px;">
+              Save Profile Details <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
     </div>
 
   </div>
