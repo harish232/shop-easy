@@ -157,6 +157,13 @@ function showView(viewName) {
   const supportView = document.getElementById('support-view');
   const dashboardView = document.getElementById('dashboard-view');
   const heroSection = document.querySelector('.hero-carousel');
+  const authModal = document.getElementById('auth-modal');
+
+  // Ensure authModal is closed when navigating views
+  if (authModal && viewName !== 'auth') {
+    authModal.style.display = 'none';
+    authModal.classList.remove('show');
+  }
 
   // Hide all views first
   if (productsView) productsView.style.display = 'none';
@@ -170,29 +177,26 @@ function showView(viewName) {
   document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
 
   if (viewName === 'products') {
-    productsView.style.display = 'block';
+    if (productsView) productsView.style.display = 'block';
     if (heroSection) heroSection.style.display = 'block';
 
     const homeLink = document.querySelector('.nav-links a:first-child');
     if (homeLink) homeLink.classList.add('active');
   } else if (viewName === 'cart') {
-    cartView.style.display = 'block';
+    if (cartView) cartView.style.display = 'block';
   } else if (viewName === 'orders') {
     if (ordersView) ordersView.style.display = 'block';
   } else if (viewName === 'support') {
-    const authModal = document.getElementById('auth-modal');
-    if (authModal) {
-      authModal.style.display = 'none';
-      authModal.classList.remove('show');
-    }
     if (supportView) supportView.style.display = 'block';
 
     const supportLink = Array.from(document.querySelectorAll('.nav-links a')).find(l => l.textContent.trim().toLowerCase().includes('support'));
     if (supportLink) supportLink.classList.add('active');
 
     if (currentUser) {
-      document.getElementById('support-name').value = currentUser.name || '';
-      document.getElementById('support-email').value = currentUser.email || '';
+      const sName = document.getElementById('support-name');
+      const sEmail = document.getElementById('support-email');
+      if (sName) sName.value = currentUser.name || '';
+      if (sEmail) sEmail.value = currentUser.email || '';
     }
   } else if (viewName === 'dashboard') {
     if (!currentUser) {
