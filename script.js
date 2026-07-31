@@ -774,15 +774,15 @@ function switchAuthTab(tab) {
   const signupForm = document.getElementById('signup-form');
 
   if (tab === 'login') {
-    tabLogin.classList.add('active');
-    tabSignup.classList.remove('active');
-    loginForm.style.display = 'block';
-    signupForm.style.display = 'none';
+    if (tabLogin) tabLogin.classList.add('active');
+    if (tabSignup) tabSignup.classList.remove('active');
+    if (loginForm) loginForm.style.display = 'block';
+    if (signupForm) signupForm.style.display = 'none';
   } else {
-    tabLogin.classList.remove('active');
-    tabSignup.classList.add('active');
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
+    if (tabLogin) tabLogin.classList.remove('active');
+    if (tabSignup) tabSignup.classList.add('active');
+    if (loginForm) loginForm.style.display = 'none';
+    if (signupForm) signupForm.style.display = 'block';
   }
 }
 window.switchAuthTab = switchAuthTab;
