@@ -448,6 +448,34 @@ app.delete('/admin/products/:id', requireAdmin, (req, res) => {
 });
 
 // ─── AUTH & USER PROFILE ENDPOINTS ───
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Name, email, and password are required.' });
+  }
+
+  const db = loadDB();
+  const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (existingUser) {
+    return res.status(400).json({ message: 'User with this email already exists.' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = {
+    id: Date.now(),
+    name,
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
+    created_at: new Date().toISOString()
+  };
+
+  db.users.push(newUser);
+  saveDB(db);
+
+  res.status(201).json({ message: 'Account created successfully! Please sign in.', user: { name: newUser.name, email: newUser.email } });
+});
+
 app.post('/send-otp', (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'Email is required' });

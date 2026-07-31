@@ -488,7 +488,6 @@
 
       <!-- Login Form -->
       <form id="login-form" onsubmit="handleLogin(event)">
-        <div class="auth-header-text">Welcome back! Sign in to access your ShopEase account.</div>
         <div class="form-group">
           <label for="login-email">Email Address</label>
           <div class="input-icon-wrapper">
@@ -505,9 +504,9 @@
               onclick="togglePasswordVisibility('login-password', this)"></i>
           </div>
         </div>
-        <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+        <div style="text-align: right; margin-top: -6px; margin-bottom: 12px;">
           <a href="#" onclick="openForgotPasswordModal()"
-            style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+            style="font-size: 11.5px; color: var(--accent); text-decoration: none; font-weight: 600;">Forgot Password?</a>
         </div>
         <button type="submit" class="auth-submit-btn">
           Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
@@ -516,7 +515,6 @@
 
       <!-- Signup Form -->
       <form id="signup-form" onsubmit="handleSignup(event)" style="display: none;">
-        <div class="auth-header-text">Create a free account to track your orders and shop easily.</div>
         <div class="form-group">
           <label for="signup-name">Full Name</label>
           <div class="input-icon-wrapper">
@@ -531,41 +529,21 @@
             <input type="email" id="signup-email" required placeholder="name@example.com">
           </div>
         </div>
-        <div id="otp-password-group" style="display: none;">
-          <div class="form-group">
-            <label for="signup-otp">OTP</label>
-            <div class="input-icon-wrapper">
-              <i class="fa-solid fa-key field-icon"></i>
-              <input type="text" id="signup-otp" placeholder="Enter 6-digit OTP" maxlength="6">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="signup-password">Set Password</label>
-            <div class="input-icon-wrapper">
-              <i class="fa-solid fa-lock field-icon"></i>
-              <input type="password" id="signup-password" placeholder="At least 6 characters" minlength="6">
-              <i class="fa-solid fa-eye-slash toggle-password"
-                onclick="togglePasswordVisibility('signup-password', this)"></i>
-            </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-lock field-icon"></i>
+            <input type="password" id="signup-password" required placeholder="At least 4 characters" minlength="4">
+            <i class="fa-solid fa-eye-slash toggle-password"
+              onclick="togglePasswordVisibility('signup-password', this)"></i>
           </div>
         </div>
-        <button type="button" class="auth-submit-btn" id="send-otp-btn" onclick="handleSendOtp()">
-          Send OTP <i class="fa-solid fa-paper-plane"></i>
-        </button>
-        <button type="submit" class="auth-submit-btn" id="signup-submit-btn" style="display: none;">
+        <button type="submit" class="auth-submit-btn" id="signup-submit-btn">
           Create Account <i class="fa-solid fa-user-plus"></i>
         </button>
       </form>
-
-      <!-- Social Login Section -->
-      <div class="social-login-divider">
-        <span>OR</span>
-      </div>
-      <div class="social-login-buttons">
-        <button type="button" class="social-login-btn google" onclick="handleSocialLogin('Google')">
-          <i class="fa-brands fa-google"></i> Continue with Google
-        </button>
-      </div>
+    </div>
+  </div>
 
   <!-- PROFILE MODAL -->
   <div class="modal-overlay" id="profile-modal">

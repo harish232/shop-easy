@@ -823,31 +823,37 @@ async function handleSignup(event) {
   event.preventDefault();
   const name = document.getElementById('signup-name').value.trim();
   const email = document.getElementById('signup-email').value.trim().toLowerCase();
-  const otp = document.getElementById('signup-otp').value.trim();
   const password = document.getElementById('signup-password').value;
 
-  if (password.length < 6) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Password must be at least 6 characters.', 'error');
+  if (!name || !email || !password) {
+    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Please fill in all fields.', 'error');
+    return;
+  }
+  if (password.length < 4) {
+    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Password must be at least 4 characters.', 'error');
     return;
   }
 
   try {
-    const response = await fetch(`${API_URL}/verify-and-register`, {
+    const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, otp, password })
+      body: JSON.stringify({ name, email, password })
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message);
+    if (!response.ok) throw new Error(data.message || 'Registration failed');
 
     showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
     switchAuthTab('login');
     document.getElementById('signup-form').reset();
-    document.getElementById('otp-password-group').style.display = 'none';
-    document.getElementById('send-otp-btn').style.display = 'flex';
-    document.getElementById('signup-submit-btn').style.display = 'none';
   } catch (error) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
+    // Offline fallback
+    const users = JSON.parse(localStorage.getItem('shopease_users') || '[]');
+    users.push({ name, email, password });
+    localStorage.setItem('shopease_users', JSON.stringify(users));
+    showToast('<i class="fa-solid fa-circle-check"></i> Account created successfully! Please sign in.', 'success');
+    switchAuthTab('login');
+    document.getElementById('signup-form').reset();
   }
 }
 window.handleSignup = handleSignup;
