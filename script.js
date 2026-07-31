@@ -582,17 +582,21 @@ window.filterProducts = filterProducts;
 // Handle nav link filters
 document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href') || '';
+    if (href.endsWith('.html')) return; // Allow normal navigation to external pages like admin.html
+
     e.preventDefault();
-    const cat = link.textContent.toLowerCase();
-    if (cat === 'support') {
+    const cat = link.textContent.trim().toLowerCase();
+    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+
+    if (cat.includes('support')) {
       showView('support');
       return;
     }
     showView('products'); // switch back to catalog view first
-    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
     // Match categories
-    if (cat === 'home') {
+    if (cat.includes('home')) {
       filterProducts('all', document.querySelector('.filters .filter-btn:first-child'));
     } else {
       const filterBtn = Array.from(document.querySelectorAll('.filters .filter-btn')).find(b => b.textContent.toLowerCase().includes(cat));
