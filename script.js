@@ -736,12 +736,22 @@ function openAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
     modal.classList.remove('hidden');
-    modal.style.display = 'flex';
     modal.classList.add('show');
+    modal.style.setProperty('display', 'flex', 'important');
     switchAuthTab('login');
   }
 }
 window.openAuthModal = openAuthModal;
+
+// Global Delegated Event Listener for Login Button
+document.addEventListener('click', (e) => {
+  const loginBtn = e.target.closest('.login-btn');
+  if (loginBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    openAuthModal();
+  }
+});
 
 function closeAuthModal() {
   const modal = document.getElementById('auth-modal');

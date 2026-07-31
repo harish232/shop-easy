@@ -1074,11 +1074,14 @@ footer span {
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer !important;
   display: flex;
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 105;
+  pointer-events: auto !important;
 }
 
 .login-btn:hover {
