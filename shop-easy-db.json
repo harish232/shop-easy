@@ -1,5 +1,26 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": 1,
+      "name": "Harish Babu",
+      "email": "harishbabu.yg@gmail.com",
+      "password": "$2a$10$4SQJJ4QQv8TVD/egBvM6/OvROc7I/XMeYIhQvvU5s6KkPgZAY8IfO",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
+      "phone": "",
+      "address": "",
+      "created_at": "2026-07-31T06:30:20.511Z"
+    },
+    {
+      "id": 2,
+      "name": "Harish Babu",
+      "email": "hbabu8248@gmail.com",
+      "password": "$2a$10$sQh0g19oJNHt6zBgACk8x.FgF2javP9I.TF480fUwc.7eHIwIk9ha",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
+      "phone": "",
+      "address": "",
+      "created_at": "2026-07-31T07:03:36.151Z"
+    }
+  ],
   "orders": [],
   "products": [
     {
