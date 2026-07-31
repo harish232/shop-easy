@@ -163,6 +163,7 @@ function showView(viewName) {
   if (authModal && viewName !== 'auth') {
     authModal.style.display = 'none';
     authModal.classList.remove('show');
+    authModal.classList.remove('hidden');
   }
 
   // Hide all views first
@@ -734,6 +735,7 @@ window.toggleUserMenu = toggleUserMenu;
 function openAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
+    modal.classList.remove('hidden');
     modal.style.display = 'flex';
     modal.classList.add('show');
     switchAuthTab('login');
@@ -746,9 +748,12 @@ function closeAuthModal() {
   if (modal) {
     modal.style.display = 'none';
     modal.classList.remove('show');
+    modal.classList.remove('hidden');
   }
-  document.getElementById('login-form').reset();
-  document.getElementById('signup-form').reset();
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  if (loginForm) loginForm.reset();
+  if (signupForm) signupForm.reset();
 }
 window.closeAuthModal = closeAuthModal;
 
