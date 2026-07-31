@@ -329,10 +329,10 @@
 
   <!-- ADD / EDIT PRODUCT MODAL -->
   <div class="modal-overlay" id="product-modal">
-    <div class="auth-card" style="max-width: 550px;">
-      <button class="auth-close-btn" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h2 id="product-modal-title" style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 16px;">
-        <i class="fa-solid fa-box" style="color: var(--accent);"></i> Add New Product
+    <div class="auth-card admin-modal-card" style="max-width: 550px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
+      <button class="auth-close-btn" onclick="closeProductModal()" style="color: #94a3b8;"><i class="fa-solid fa-xmark"></i></button>
+      <h2 id="product-modal-title" style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 16px; color: #f8fafc;">
+        <i class="fa-solid fa-box" style="color: #10b981;"></i> Add New Product
       </h2>
       <form id="product-form" onsubmit="handleProductSubmit(event)">
         <input type="hidden" id="edit-product-id">
