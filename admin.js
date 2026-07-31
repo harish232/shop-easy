@@ -8,16 +8,29 @@ async function getAdminToken() {
 function showDashboard() {
   const loginScreen = document.getElementById('admin-login-screen');
   const dashboard = document.getElementById('admin-dashboard');
-  if (loginScreen) loginScreen.classList.add('hidden');
-  if (dashboard) dashboard.classList.remove('hidden');
+  if (loginScreen) {
+    loginScreen.style.display = 'none';
+    loginScreen.classList.add('hidden');
+  }
+  if (dashboard) {
+    dashboard.style.display = 'flex';
+    dashboard.classList.remove('hidden');
+  }
 }
 
 function logoutAdmin() {
   localStorage.removeItem('shopease_admin_token');
+  localStorage.removeItem('shopease_admin_email');
   const loginScreen = document.getElementById('admin-login-screen');
   const dashboard = document.getElementById('admin-dashboard');
-  if (loginScreen) loginScreen.classList.remove('hidden');
-  if (dashboard) dashboard.classList.add('hidden');
+  if (loginScreen) {
+    loginScreen.style.display = 'grid';
+    loginScreen.classList.remove('hidden');
+  }
+  if (dashboard) {
+    dashboard.style.display = 'none';
+    dashboard.classList.add('hidden');
+  }
 }
 
 function switchAdminTab(tabName) {
@@ -45,11 +58,18 @@ function switchAdminTab(tabName) {
 
 async function handleAdminLogin(event) {
   if (event) event.preventDefault();
+  const emailInput = document.getElementById('admin-email');
   const secretInput = document.getElementById('admin-secret');
-  if (!secretInput) return;
-  const secret = secretInput.value.trim();
+  
+  const email = emailInput ? emailInput.value.trim() : 'admin@shopease.com';
+  const secret = secretInput ? secretInput.value.trim() : '';
+
+  if (!email) {
+    alert('Please enter your Admin Email Address.');
+    return;
+  }
   if (!secret) {
-    alert('Please enter your Admin Secret Key.');
+    alert('Please enter your Admin Secret Password.');
     return;
   }
 
@@ -66,11 +86,13 @@ async function handleAdminLogin(event) {
     }
 
     localStorage.setItem('shopease_admin_token', data.token);
+    localStorage.setItem('shopease_admin_email', email);
     showDashboard();
     await renderAdminDashboard();
   } catch (err) {
     if (secret === 'shopadmin123' || secret.length >= 4) {
       localStorage.setItem('shopease_admin_token', secret);
+      localStorage.setItem('shopease_admin_email', email);
       showDashboard();
       await renderAdminDashboard();
     } else {

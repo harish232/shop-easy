@@ -1408,8 +1408,8 @@ footer span {
   border: 1px solid var(--border);
 }
 
-.admin-page.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
 .admin-login-screen {
