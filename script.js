@@ -180,13 +180,16 @@ function showView(viewName) {
   } else if (viewName === 'orders') {
     if (ordersView) ordersView.style.display = 'block';
   } else if (viewName === 'support') {
+    const authModal = document.getElementById('auth-modal');
+    if (authModal) {
+      authModal.style.display = 'none';
+      authModal.classList.remove('show');
+    }
     if (supportView) supportView.style.display = 'block';
 
-    // Find Support Link
-    const supportLink = Array.from(document.querySelectorAll('.nav-links a')).find(l => l.textContent.toLowerCase() === 'support');
+    const supportLink = Array.from(document.querySelectorAll('.nav-links a')).find(l => l.textContent.trim().toLowerCase().includes('support'));
     if (supportLink) supportLink.classList.add('active');
 
-    // Pre-fill Support form name and email if logged in
     if (currentUser) {
       document.getElementById('support-name').value = currentUser.name || '';
       document.getElementById('support-email').value = currentUser.email || '';
@@ -725,13 +728,21 @@ window.toggleUserMenu = toggleUserMenu;
 
 
 function openAuthModal() {
-  document.getElementById('auth-modal').classList.add('show');
-  switchAuthTab('login');
+  const modal = document.getElementById('auth-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    switchAuthTab('login');
+  }
 }
 window.openAuthModal = openAuthModal;
 
 function closeAuthModal() {
-  document.getElementById('auth-modal').classList.remove('show');
+  const modal = document.getElementById('auth-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
   document.getElementById('login-form').reset();
   document.getElementById('signup-form').reset();
 }
