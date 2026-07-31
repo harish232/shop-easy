@@ -161,7 +161,7 @@ function showView(viewName) {
 
   // Ensure authModal is closed when navigating views
   if (authModal && viewName !== 'auth') {
-    authModal.style.display = 'none';
+    authModal.style.display = '';
     authModal.classList.remove('show');
     authModal.classList.remove('hidden');
   }
@@ -735,9 +735,9 @@ window.toggleUserMenu = toggleUserMenu;
 function openAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
+    modal.style.display = '';
     modal.classList.remove('hidden');
     modal.classList.add('show');
-    modal.style.setProperty('display', 'flex', 'important');
     switchAuthTab('login');
   }
 }
@@ -756,7 +756,7 @@ document.addEventListener('click', (e) => {
 function closeAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
-    modal.style.display = 'none';
+    modal.style.display = '';
     modal.classList.remove('show');
     modal.classList.remove('hidden');
   }
