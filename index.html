@@ -42,6 +42,9 @@
             <div class="slider round"><i class="fa-solid fa-sun"></i><i class="fa-solid fa-moon"></i></div>
           </label>
         </div>
+        <button class="cart-btn" onclick="openAdminHomeModal()" style="background: rgba(22, 163, 74, 0.1); color: var(--accent); border: 1px solid rgba(22, 163, 74, 0.2);" title="Store Owner Admin Login">
+          <i class="fa-solid fa-user-shield"></i> Admin
+        </button>
         <div id="auth-nav-container">
           <button class="login-btn" onclick="openAuthModal()">
             <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
@@ -567,6 +570,36 @@
         </button>
       </div>
 
+  <!-- ADMIN OWNER LOGIN MODAL -->
+  <div class="modal-overlay" id="admin-home-modal">
+    <div class="auth-card" style="max-width: 440px;">
+      <button class="auth-close-btn" onclick="closeAdminHomeModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(22, 163, 74, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px;">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h3 style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0 0 6px;">Store Owner Login</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Enter your admin secret key to access the owner control panel.</p>
+      </div>
+
+      <form id="admin-home-login-form" onsubmit="handleAdminHomeLogin(event)">
+        <div class="form-group">
+          <label for="admin-home-secret">Admin Secret Key</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-key field-icon"></i>
+            <input type="password" id="admin-home-secret" required placeholder="Enter admin secret (e.g. shopadmin123)">
+            <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePasswordVisibility('admin-home-secret', this)"></i>
+          </div>
+        </div>
+        <button type="submit" class="auth-submit-btn" style="width: 100%; margin-top: 10px;">
+          Access Admin Dashboard <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px;">
+          <i class="fa-solid fa-circle-info"></i> Default Secret: <code>shopadmin123</code>
+        </p>
+      </form>
     </div>
   </div>
 
