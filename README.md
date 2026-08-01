@@ -66,3 +66,4 @@ ShopEase is an ultra-modern, full-stack E-Commerce web application featuring a r
 3. **Access Application URLs**:
    - Customer Storefront: [http://localhost:3000/index.html](http://localhost:3000/index.html)
    - Admin Control Portal: [http://localhost:3000/admin.html](http://localhost:3000/admin.html)
+# shop-easy
