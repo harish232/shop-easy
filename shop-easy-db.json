@@ -27,6 +27,16 @@
       "password": "$2a$10$nvSAJ5rlXGl7DGbvtBf6YubsrqZaR1UCfS2uc/GHk9QajEmJC.pYS",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
       "created_at": "2026-07-31T09:11:44.531Z"
+    },
+    {
+      "id": 4,
+      "name": "chandu",
+      "email": "pidugu262006@gmail.com",
+      "password": "$2a$10$Dqy.387kng/K46mZdXzw1OvMQwoTO4dOJJBRLHlIIyOcHkuATGdQS",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
+      "phone": "",
+      "address": "",
+      "created_at": "2026-08-03T10:56:54.019Z"
     }
   ],
   "orders": [
@@ -52,6 +62,167 @@
       "coupon": null,
       "status": "confirmed",
       "created_at": "2026-07-31T09:20:43.901Z"
+    },
+    {
+      "id": "ORD-555849",
+      "email": "guest@example.com",
+      "shippingName": "Guest Customer",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 4,
+          "name": "Designer UV Sunglasses",
+          "price": 899,
+          "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 899,
+      "delivery": 40,
+      "discount": 0,
+      "total": 939,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:50:12.427Z"
+    },
+    {
+      "id": "ORD-169433",
+      "email": "guest@example.com",
+      "shippingName": "Guest Customer",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 5,
+          "name": "Ergonomic Mechanical Keyboard",
+          "price": 3499,
+          "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 3499,
+      "delivery": 40,
+      "discount": 0,
+      "total": 3539,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:50:51.430Z"
+    },
+    {
+      "id": "ORD-946968",
+      "email": "guest@example.com",
+      "shippingName": "Guest Customer",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 5,
+          "name": "Ergonomic Mechanical Keyboard",
+          "price": 3499,
+          "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 3499,
+      "delivery": 40,
+      "discount": 0,
+      "total": 3539,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:53:01.148Z"
+    },
+    {
+      "id": "ORD-481833",
+      "email": "pidugu262006@gmail.com",
+      "shippingName": "chandu",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 3,
+          "name": "Smart Fitness Tracker Band",
+          "price": 1299,
+          "image": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 1299,
+      "delivery": 40,
+      "discount": 0,
+      "total": 1339,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:57:31.617Z"
+    },
+    {
+      "id": "ORD-943731",
+      "email": "pidugu262006@gmail.com",
+      "shippingName": "chandu",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 3,
+          "name": "Smart Fitness Tracker Band",
+          "price": 1299,
+          "image": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 1299,
+      "delivery": 40,
+      "discount": 0,
+      "total": 1339,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:57:59.486Z"
+    },
+    {
+      "id": "ORD-252260",
+      "email": "pidugu262006@gmail.com",
+      "shippingName": "chandu",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 5,
+          "name": "Ergonomic Mechanical Keyboard",
+          "price": 3499,
+          "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 3499,
+      "delivery": 40,
+      "discount": 0,
+      "total": 3539,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T10:58:58.286Z"
+    },
+    {
+      "id": "ORD-160598",
+      "email": "guest@example.com",
+      "shippingName": "Guest Customer",
+      "shippingPhone": "N/A",
+      "shippingAddress": "N/A",
+      "items": [
+        {
+          "id": 4,
+          "name": "Designer UV Sunglasses",
+          "price": 899,
+          "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80",
+          "qty": 1
+        }
+      ],
+      "subtotal": 899,
+      "delivery": 40,
+      "discount": 0,
+      "total": 939,
+      "coupon": null,
+      "status": "confirmed",
+      "created_at": "2026-08-03T11:05:44.823Z"
     }
   ],
   "products": [

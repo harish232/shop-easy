@@ -386,54 +386,82 @@ app.post('/register', async (req, res) => {
 
 app.post('/send-otp', (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ message: 'Email is required' });
+  if (!email) return res.status(400).json({ message: 'Email address is required.' });
+
+  const db = loadDB();
+  const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (existingUser) {
+    return res.status(400).json({ message: 'An account with this email address already exists. Please sign in.' });
+  }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email] = { otp, timestamp: Date.now(), type: 'register' };
+  otpStore[email.toLowerCase()] = { otp, timestamp: Date.now(), type: 'register' };
 
   const mailOptions = {
-    from: process.env.GMAIL_USER || 'noreply@shopease.com',
+    from: `"ShopEase Support" <${process.env.GMAIL_USER || 'noreply@shopease.com'}>`,
     to: email,
     subject: 'Your ShopEase Registration OTP',
-    text: `Your One-Time Password for ShopEase is: ${otp}. It is valid for 5 minutes.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e5e7eb; border-radius: 10px;">
+        <h2 style="color: #4f46e5; margin-bottom: 10px;">Welcome to ShopEase!</h2>
+        <p>Use the One-Time Password (OTP) below to complete your account registration:</p>
+        <div style="background: #eef2ff; padding: 15px; font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #4f46e5; text-align: center; border-radius: 8px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p style="font-size: 14px; color: #555;">This code is valid for 5 minutes. Please do not share it with anyone.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+        <p style="font-size: 12px; color: #888;">If you did not request this OTP, please ignore this email.</p>
+      </div>
+    `,
+    text: `Your One-Time Password for ShopEase is: ${otp}. It is valid for 5 minutes.`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      return res.status(200).json({ message: 'OTP sent! (Local mode code: ' + otp + ')' });
+      console.error('❌ Nodemailer Error sending OTP email:', error.message);
+      return res.status(200).json({ 
+        message: `OTP generated! (Email delivery failed. Code: ${otp})` 
+      });
     }
+    console.log('✅ OTP Email sent successfully to:', email);
     res.status(200).json({ message: 'OTP sent successfully to ' + email });
   });
 });
 
 app.post('/verify-and-register', async (req, res) => {
   const { name, email, otp, password } = req.body;
-  const storedOtpData = otpStore[email];
+  if (!name || !email || !otp || !password) {
+    return res.status(400).json({ message: 'Name, email, OTP, and password are required.' });
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  const storedOtpData = otpStore[normalizedEmail];
+
   if (!storedOtpData || storedOtpData.type !== 'register') {
-    return res.status(400).json({ message: 'OTP not found or invalid. Please request a new OTP.' });
+    return res.status(400).json({ message: 'OTP not found. Please click Send OTP first.' });
   }
   if (Date.now() - storedOtpData.timestamp > 5 * 60 * 1000) {
-    delete otpStore[email];
-    return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
+    delete otpStore[normalizedEmail];
+    return res.status(400).json({ message: 'OTP has expired. Please request a new OTP.' });
   }
-  if (storedOtpData.otp !== otp) {
-    return res.status(400).json({ message: 'Invalid OTP entered.' });
+  if (storedOtpData.otp !== otp.trim()) {
+    return res.status(400).json({ message: 'Invalid OTP entered. Please check and try again.' });
   }
 
   const db = loadDB();
-  const existingUser = db.users.find(u => u.email === email);
+  const existingUser = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
   if (existingUser) {
-    delete otpStore[email];
-    return res.status(409).json({ message: 'Email is already registered.' });
+    delete otpStore[normalizedEmail];
+    return res.status(409).json({ message: 'An account with this email address already exists.' });
   }
 
   const hashed = bcrypt.hashSync(password, 10);
   const newUser = {
     id: db.users.length + 1,
-    name,
-    email,
+    name: name.trim(),
+    email: normalizedEmail,
     password: hashed,
-    avatar: '',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
     phone: '',
     address: '',
     created_at: new Date().toISOString()
@@ -441,7 +469,7 @@ app.post('/verify-and-register', async (req, res) => {
 
   db.users.push(newUser);
   saveDB(db);
-  delete otpStore[email];
+  delete otpStore[normalizedEmail];
   res.status(200).json({ message: 'Verification successful. Account created!' });
 });
 
@@ -514,16 +542,43 @@ app.post('/social-login', (req, res) => {
 
 app.post('/forgot-password', (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ message: 'Email is required' });
+  if (!email) return res.status(400).json({ message: 'Email address is required.' });
 
+  const normalizedEmail = email.toLowerCase();
   const db = loadDB();
-  const user = db.users.find(u => u.email === email);
-  if (!user) return res.status(404).json({ message: 'No account found with this email.' });
+  const user = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
+  if (!user) return res.status(404).json({ message: 'No account found with this email address.' });
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email] = { otp, timestamp: Date.now(), type: 'reset' };
+  otpStore[normalizedEmail] = { otp, timestamp: Date.now(), type: 'reset' };
 
-  res.status(200).json({ message: 'Password reset OTP generated (Code: ' + otp + ')' });
+  const mailOptions = {
+    from: `"ShopEase Support" <${process.env.GMAIL_USER || 'noreply@shopease.com'}>`,
+    to: email,
+    subject: 'ShopEase Password Reset OTP',
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #fee2e2; border-radius: 10px;">
+        <h2 style="color: #ef4444; margin-bottom: 10px;">ShopEase Password Reset</h2>
+        <p>Your OTP code to reset your password is:</p>
+        <div style="background: #fef2f2; padding: 15px; font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #ef4444; text-align: center; border-radius: 8px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p style="font-size: 14px; color: #555;">This code is valid for 5 minutes. If you did not request a password reset, please ignore this email.</p>
+      </div>
+    `,
+    text: `Your One-Time Password for resetting your ShopEase password is: ${otp}. It is valid for 5 minutes.`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('❌ Nodemailer Error sending password reset email:', error.message);
+      return res.status(200).json({ 
+        message: `Reset OTP generated! (Email delivery failed. Code: ${otp})` 
+      });
+    }
+    console.log('✅ Password Reset Email sent successfully to:', email);
+    res.status(200).json({ message: 'Password reset OTP sent to ' + email });
+  });
 });
 
 app.post('/reset-password', (req, res) => {

@@ -673,6 +673,11 @@ window.checkout = checkout;
 function openPaymentModal() {
   const modal = document.getElementById('payment-modal');
   if (modal) {
+    if (currentUser) {
+      if (document.getElementById('checkout-name')) document.getElementById('checkout-name').value = currentUser.name || '';
+      if (document.getElementById('checkout-phone')) document.getElementById('checkout-phone').value = currentUser.phone || '';
+      if (document.getElementById('checkout-address')) document.getElementById('checkout-address').value = currentUser.address || '';
+    }
     modal.classList.add('show');
     modal.style.display = 'flex';
   }
@@ -702,6 +707,25 @@ window.switchPayTab = switchPayTab;
 async function processPayment(method) {
   if (!pendingOrderData) return;
 
+  const nameInput = document.getElementById('checkout-name');
+  const phoneInput = document.getElementById('checkout-phone');
+  const addressInput = document.getElementById('checkout-address');
+  const cityInput = document.getElementById('checkout-city');
+  const pincodeInput = document.getElementById('checkout-pincode');
+
+  const shippingName = nameInput ? nameInput.value.trim() : '';
+  const shippingPhone = phoneInput ? phoneInput.value.trim() : '';
+  const streetAddress = addressInput ? addressInput.value.trim() : '';
+  const city = cityInput ? cityInput.value.trim() : '';
+  const pincode = pincodeInput ? pincodeInput.value.trim() : '';
+
+  if (!shippingName || !shippingPhone || !streetAddress) {
+    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Please enter your name, phone number, and delivery address.', 'error');
+    return;
+  }
+
+  const fullShippingAddress = `${streetAddress}${city ? ', ' + city : ''}${pincode ? ' - ' + pincode : ''}`;
+
   const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
   const orderDate = new Date().toLocaleString();
 
@@ -709,9 +733,9 @@ async function processPayment(method) {
     id: orderId,
     date: orderDate,
     email: currentUser ? currentUser.email : 'guest@example.com',
-    shippingName: currentUser ? currentUser.name : 'Guest Customer',
-    shippingPhone: currentUser ? (currentUser.phone || 'N/A') : 'N/A',
-    shippingAddress: currentUser ? (currentUser.address || 'N/A') : 'N/A',
+    shippingName: shippingName,
+    shippingPhone: shippingPhone,
+    shippingAddress: fullShippingAddress,
     items: pendingOrderData.orderItems,
     subtotal: pendingOrderData.subtotal,
     delivery: pendingOrderData.delivery,
@@ -730,6 +754,17 @@ async function processPayment(method) {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to place order.');
+
+    if (currentUser) {
+      currentUser.phone = shippingPhone;
+      currentUser.address = fullShippingAddress;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      fetch(`${API_URL}/user/update`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentEmail: currentUser.email, name: currentUser.name, email: currentUser.email, phone: shippingPhone, address: fullShippingAddress })
+      }).catch(() => {});
+    }
 
     closePaymentModal();
     cart = {};
@@ -845,10 +880,14 @@ window.removeCoupon = removeCoupon;
 let toastTimer;
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.innerHTML = msg;
+  let text = msg;
+  if (text && typeof text === 'string' && (text.includes('Failed to fetch') || text.includes('NetworkError') || text.includes('fetch failed'))) {
+    text = '<i class="fa-solid fa-triangle-exclamation"></i> Backend server is not connected! Please start the server running on http://localhost:3000.';
+  }
+  t.innerHTML = text;
   t.className = 'toast show ' + type;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 window.showToast = showToast;
 
@@ -934,6 +973,32 @@ document.addEventListener('click', (e) => {
   }
 });
 
+function clearAuthAlerts() {
+  const signupErr = document.getElementById('signup-error-box');
+  const signupSuccess = document.getElementById('signup-success-box');
+  const loginErr = document.getElementById('login-error-box');
+  const forgotErr = document.getElementById('forgot-error-box');
+  const forgotSuccess = document.getElementById('forgot-success-box');
+  if (signupErr) { signupErr.style.display = 'none'; signupErr.innerHTML = ''; }
+  if (signupSuccess) { signupSuccess.style.display = 'none'; signupSuccess.innerHTML = ''; }
+  if (loginErr) { loginErr.style.display = 'none'; loginErr.innerHTML = ''; }
+  if (forgotErr) { forgotErr.style.display = 'none'; forgotErr.innerHTML = ''; }
+  if (forgotSuccess) { forgotSuccess.style.display = 'none'; forgotSuccess.innerHTML = ''; }
+}
+
+function showAuthError(formId, message) {
+  const errBox = document.getElementById(`${formId}-error-box`);
+  let cleanMsg = message;
+  if (typeof cleanMsg === 'string' && (cleanMsg.includes('Failed to fetch') || cleanMsg.includes('NetworkError') || cleanMsg.includes('fetch failed'))) {
+    cleanMsg = 'Backend server is not connected! Please start server running on http://localhost:3000.';
+  }
+  if (errBox) {
+    errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${cleanMsg}</span>`;
+    errBox.style.display = 'flex';
+  }
+  showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${cleanMsg}`, 'error');
+}
+
 function closeAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) {
@@ -941,6 +1006,7 @@ function closeAuthModal() {
     modal.classList.remove('show');
     modal.classList.remove('hidden');
   }
+  clearAuthAlerts();
   const loginForm = document.getElementById('login-form');
   const signupForm = document.getElementById('signup-form');
   if (loginForm) loginForm.reset();
@@ -949,6 +1015,7 @@ function closeAuthModal() {
 window.closeAuthModal = closeAuthModal;
 
 function switchAuthTab(tab) {
+  clearAuthAlerts();
   const tabLogin = document.getElementById('tab-login');
   const tabSignup = document.getElementById('tab-signup');
   const loginForm = document.getElementById('login-form');
@@ -981,17 +1048,23 @@ function togglePasswordVisibility(fieldId, iconElement) {
 window.togglePasswordVisibility = togglePasswordVisibility;
 
 async function handleSendOtp() {
+  clearAuthAlerts();
   const name = document.getElementById('signup-name').value.trim();
   const email = document.getElementById('signup-email').value.trim().toLowerCase();
   const sendOtpBtn = document.getElementById('send-otp-btn');
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!name || !email) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Please enter your name and email.', 'error');
+    showAuthError('signup', 'Please enter your name and email.');
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    showAuthError('signup', 'Please enter a valid email address.');
     return;
   }
 
   sendOtpBtn.disabled = true;
-  sendOtpBtn.innerHTML = 'Sending...';
+  sendOtpBtn.innerHTML = 'Sending OTP... <i class="fa-solid fa-spinner fa-spin"></i>';
 
   try {
     const response = await fetch(`${API_URL}/send-otp`, {
@@ -1002,12 +1075,17 @@ async function handleSendOtp() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to send OTP');
 
+    const successBox = document.getElementById('signup-success-box');
+    if (successBox) {
+      successBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${data.message}</span>`;
+      successBox.style.display = 'flex';
+    }
     showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
     document.getElementById('otp-password-group').style.display = 'block';
     document.getElementById('send-otp-btn').style.display = 'none';
     document.getElementById('signup-submit-btn').style.display = 'flex';
   } catch (error) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
+    showAuthError('signup', error.message);
   } finally {
     sendOtpBtn.disabled = false;
     sendOtpBtn.innerHTML = 'Send OTP <i class="fa-solid fa-paper-plane"></i>';
@@ -1017,24 +1095,40 @@ window.handleSendOtp = handleSendOtp;
 
 async function handleSignup(event) {
   event.preventDefault();
+  clearAuthAlerts();
   const name = document.getElementById('signup-name').value.trim();
   const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const otpInput = document.getElementById('signup-otp');
+  const otp = otpInput ? otpInput.value.trim() : '';
   const password = document.getElementById('signup-password').value;
 
-  if (!name || !email || !password) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Please fill in all fields.', 'error');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!name || !email) {
+    showAuthError('signup', 'Please enter your name and email.');
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    showAuthError('signup', 'Please enter a valid email address.');
+    return;
+  }
+  if (!otp) {
+    showAuthError('signup', 'Please enter the OTP sent to your email.');
+    return;
+  }
+  if (!password) {
+    showAuthError('signup', 'Please set a password.');
     return;
   }
   if (password.length < 4) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Password must be at least 4 characters.', 'error');
+    showAuthError('signup', 'Password must be at least 4 characters.');
     return;
   }
 
   try {
-    const response = await fetch(`${API_URL}/register`, {
+    const response = await fetch(`${API_URL}/verify-and-register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, otp, password })
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Registration failed');
@@ -1042,20 +1136,18 @@ async function handleSignup(event) {
     showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
     switchAuthTab('login');
     document.getElementById('signup-form').reset();
+    document.getElementById('otp-password-group').style.display = 'none';
+    document.getElementById('send-otp-btn').style.display = 'block';
+    document.getElementById('signup-submit-btn').style.display = 'none';
   } catch (error) {
-    // Offline fallback
-    const users = JSON.parse(localStorage.getItem('shopease_users') || '[]');
-    users.push({ name, email, password });
-    localStorage.setItem('shopease_users', JSON.stringify(users));
-    showToast('<i class="fa-solid fa-circle-check"></i> Account created successfully! Please sign in.', 'success');
-    switchAuthTab('login');
-    document.getElementById('signup-form').reset();
+    showAuthError('signup', error.message);
   }
 }
 window.handleSignup = handleSignup;
 
 async function handleLogin(event) {
   event.preventDefault();
+  clearAuthAlerts();
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
 
@@ -1075,7 +1167,7 @@ async function handleLogin(event) {
     updateAuthUI();
     showToast(`<i class="fa-solid fa-circle-check"></i> Welcome back, ${user.name}!`, 'success');
   } catch (error) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
+    showAuthError('login', error.message);
   }
 }
 window.handleLogin = handleLogin;
@@ -1181,9 +1273,9 @@ function openGoogleOAuthWindow() {
 }
 window.openGoogleOAuthWindow = openGoogleOAuthWindow;
 
-// Forgot Password Modal Controls & Logic
 function openForgotPasswordModal() {
-  closeAuthModal(); // Close login modal first
+  closeAuthModal();
+  clearAuthAlerts();
   document.getElementById('forgot-password-modal').classList.add('show');
   document.getElementById('forgot-password-step1').style.display = 'block';
   document.getElementById('forgot-password-step2').style.display = 'none';
@@ -1193,22 +1285,29 @@ function openForgotPasswordModal() {
 window.openForgotPasswordModal = openForgotPasswordModal;
 
 function closeForgotPasswordModal() {
+  clearAuthAlerts();
   document.getElementById('forgot-password-modal').classList.remove('show');
 }
 window.closeForgotPasswordModal = closeForgotPasswordModal;
 
 async function handleForgotPasswordSendOtp(event) {
   event.preventDefault();
+  clearAuthAlerts();
   const email = document.getElementById('forgot-email').value.trim().toLowerCase();
   const sendBtn = document.getElementById('forgot-send-otp-btn');
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Please enter your email.', 'error');
+    showAuthError('forgot', 'Please enter your email address.');
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    showAuthError('forgot', 'Please enter a valid email address.');
     return;
   }
 
   sendBtn.disabled = true;
-  sendBtn.innerHTML = 'Sending...';
+  sendBtn.innerHTML = 'Sending OTP... <i class="fa-solid fa-spinner fa-spin"></i>';
 
   try {
     const response = await fetch(`${API_URL}/forgot-password`, {
@@ -1217,13 +1316,18 @@ async function handleForgotPasswordSendOtp(event) {
       body: JSON.stringify({ email })
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message);
+    if (!response.ok) throw new Error(data.message || 'Failed to send reset OTP');
 
+    const successBox = document.getElementById('forgot-success-box');
+    if (successBox) {
+      successBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${data.message}</span>`;
+      successBox.style.display = 'flex';
+    }
     showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
     document.getElementById('forgot-password-step1').style.display = 'none';
     document.getElementById('forgot-password-step2').style.display = 'block';
   } catch (error) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
+    showAuthError('forgot', error.message);
   } finally {
     sendBtn.disabled = false;
     sendBtn.innerHTML = 'Send Reset OTP <i class="fa-solid fa-paper-plane"></i>';
@@ -1233,28 +1337,37 @@ window.handleForgotPasswordSendOtp = handleForgotPasswordSendOtp;
 
 async function handleResetPassword(event) {
   event.preventDefault();
+  clearAuthAlerts();
   const email = document.getElementById('forgot-email').value.trim().toLowerCase();
   const otp = document.getElementById('reset-otp').value.trim();
   const newPassword = document.getElementById('reset-password').value;
   const confirmPassword = document.getElementById('reset-password-confirm').value;
 
+  if (!otp) {
+    showAuthError('forgot', 'Please enter the 6-digit OTP.');
+    return;
+  }
+  if (!newPassword || !confirmPassword) {
+    showAuthError('forgot', 'Please fill in both password fields.');
+    return;
+  }
   if (newPassword !== confirmPassword) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Passwords do not match.', 'error');
+    showAuthError('forgot', 'Passwords do not match.');
     return;
   }
   if (newPassword.length < 6) {
-    showToast('<i class="fa-solid fa-triangle-exclamation"></i> Password must be at least 6 characters.', 'error');
+    showAuthError('forgot', 'Password must be at least 6 characters.');
     return;
   }
 
   try {
-    const response = await fetch('http://localhost:3000/reset-password', {
+    const response = await fetch(`${API_URL}/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp, password: newPassword })
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message);
+    if (!response.ok) throw new Error(data.message || 'Password reset failed');
 
     // Update password in frontend localStorage
     const users = JSON.parse(localStorage.getItem('shopUsers')) || [];
@@ -1267,9 +1380,8 @@ async function handleResetPassword(event) {
     showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
     closeForgotPasswordModal();
     openAuthModal(); // Re-open login modal
-
   } catch (error) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation"></i> ${error.message}`, 'error');
+    showAuthError('forgot', error.message);
   }
 }
 window.handleResetPassword = handleResetPassword;
@@ -1972,18 +2084,10 @@ function closeProductDetailModal() {
 }
 window.closeProductDetailModal = closeProductDetailModal;
 
-// ── THEME SWITCHER ──
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('shopTheme', theme);
-  const checkbox = document.getElementById('theme-checkbox');
-  if (checkbox) checkbox.checked = (theme === 'dark');
-}
-
-function toggleTheme() {
-  const currentTheme = localStorage.getItem('shopTheme') || 'light';
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  setTheme(newTheme);
+// ── THEME INITIALIZATION ──
+function setTheme() {
+  document.documentElement.setAttribute('data-theme', 'light');
+  localStorage.removeItem('shopTheme');
 }
 
 // ── HERO CAROUSEL ──
@@ -2017,12 +2121,7 @@ function initHeroCarousel() {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('shopTheme') || 'light';
-  setTheme(savedTheme);
-
-  const themeCheckbox = document.getElementById('theme-checkbox');
-  if (themeCheckbox) themeCheckbox.addEventListener('change', toggleTheme);
-
+  setTheme();
   initHeroCarousel();
 });
 

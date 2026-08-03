@@ -38,12 +38,6 @@
           <i class="fa-solid fa-cart-shopping"></i> Cart
           <span class="cart-badge" id="cart-badge">0</span>
         </button>
-        <div class="theme-switch-wrapper">
-          <label class="theme-switch" for="theme-checkbox">
-            <input type="checkbox" id="theme-checkbox" />
-            <div class="slider round"><i class="fa-solid fa-sun"></i><i class="fa-solid fa-moon"></i></div>
-          </label>
-        </div>
         <div id="auth-nav-container">
           <!-- Will be populated dynamically by JavaScript -->
         </div>
@@ -339,6 +333,7 @@
       <!-- Login Form -->
       <form id="login-form" onsubmit="handleLogin(event)">
         <div class="auth-header-text">Welcome back! Sign in to access your ShopEase account.</div>
+        <div id="login-error-box" class="auth-error-alert" style="display: none;"></div>
         <div class="form-group">
           <label for="login-email">Email Address</label>
           <div class="input-icon-wrapper">
@@ -367,6 +362,8 @@
       <!-- Signup Form -->
       <form id="signup-form" onsubmit="handleSignup(event)" style="display: none;">
         <div class="auth-header-text">Create a free account to track your orders and shop easily.</div>
+        <div id="signup-error-box" class="auth-error-alert" style="display: none;"></div>
+        <div id="signup-success-box" class="auth-success-alert" style="display: none;"></div>
         <div class="form-group">
           <label for="signup-name">Full Name</label>
           <div class="input-icon-wrapper">
@@ -464,6 +461,8 @@
         style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
         <i class="fa-solid fa-key" style="color: var(--accent);"></i> Reset Password
       </div>
+      <div id="forgot-error-box" class="auth-error-alert" style="display: none;"></div>
+      <div id="forgot-success-box" class="auth-success-alert" style="display: none;"></div>
 
       <!-- Step 1: Email Input -->
       <form id="forgot-password-step1" onsubmit="handleForgotPasswordSendOtp(event)">
@@ -650,8 +649,39 @@
       <div style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
         <i class="fa-solid fa-credit-card" style="color: var(--accent);"></i> Secure Checkout Payment
       </div>
-      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
         Total Payable Amount: <strong id="payment-modal-amount" style="color: var(--primary); font-size: 17px; font-weight: 800;">₹0</strong>
+      </div>
+
+      <!-- Shipping & Delivery Address Section -->
+      <div style="background: var(--bg); padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 18px; text-align: left;">
+        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-location-dot" style="color: var(--accent);"></i> Shipping & Delivery Address
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Full Name *</label>
+            <input type="text" id="checkout-name" required placeholder="John Doe" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface);">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Phone Number *</label>
+            <input type="tel" id="checkout-phone" required placeholder="9876543210" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface);">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Street Address / Flat / Building *</label>
+          <input type="text" id="checkout-address" required placeholder="123 Main Street, Apt 4B" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface);">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">City</label>
+            <input type="text" id="checkout-city" placeholder="Hyderabad" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface);">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Pincode</label>
+            <input type="text" id="checkout-pincode" placeholder="500001" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface);">
+          </div>
+        </div>
       </div>
 
       <!-- Payment Method Tabs -->
