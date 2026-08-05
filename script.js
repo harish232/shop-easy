@@ -535,6 +535,14 @@ function clearCart() {
 }
 window.clearCart = clearCart;
 
+function deleteFromCart(id) {
+  delete cart[id];
+  renderCart();
+  renderProducts();
+  showToast('<i class="fa-solid fa-trash-can"></i> Item removed from cart', 'error');
+}
+window.deleteFromCart = deleteFromCart;
+
 // ── RENDER CART ──
 function renderCart() {
   const items = Object.entries(cart).filter(([, q]) => q > 0);
@@ -556,7 +564,6 @@ function renderCart() {
   }
   const total = subtotal + delivery - discount;
 
-
   // Update badge
   document.getElementById('cart-badge').textContent = totalQty;
   document.getElementById('cart-header-count').textContent = `${totalQty} item${totalQty !== 1 ? 's' : ''}`;
@@ -567,10 +574,12 @@ function renderCart() {
   if (items.length === 0) {
     cartBody.innerHTML = `
       <div class="cart-empty">
-        <div class="cart-empty-icon"><i class="fa-solid fa-basket-shopping" style="color: var(--text-muted);"></i></div>
-        <p>Your cart is empty.<br>Add some products!</p>
-        <br>
-        <button class="modal-btn" onclick="showView('products')">Continue Shopping</button>
+        <div class="cart-empty-icon"><i class="fa-solid fa-basket-shopping"></i></div>
+        <h3>Your Cart is Empty</h3>
+        <p>Looks like you haven't added any products to your cart yet.</p>
+        <button class="checkout-btn" style="max-width: 220px; margin: 16px auto 0 auto;" onclick="showView('products')">
+          <i class="fa-solid fa-bag-shopping"></i> Explore Products
+        </button>
       </div>`;
     if (cartSummary) cartSummary.style.display = 'none';
     return;
@@ -585,12 +594,19 @@ function renderCart() {
         </div>
         <div class="cart-item-info">
           <div class="cart-item-name">${p.name}</div>
-          <div class="cart-item-price">₹${p.price.toLocaleString()} × ${qty} = <strong>₹${(p.price * qty).toLocaleString()}</strong></div>
+          <div class="cart-item-category"><i class="fa-solid fa-tag"></i> ${p.category}</div>
+          <div class="cart-item-unit-price">₹${p.price.toLocaleString()} per unit</div>
         </div>
-        <div class="qty-controls">
-          <button class="qty-btn" onclick="removeFromCart(${id})">−</button>
-          <span class="qty-num">${qty}</span>
-          <button class="qty-btn" onclick="addToCart(${id})">+</button>
+        <div class="cart-item-right">
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="removeFromCart(${id})" title="Decrease quantity">−</button>
+            <span class="qty-num">${qty}</span>
+            <button class="qty-btn" onclick="addToCart(${id})" title="Increase quantity">+</button>
+          </div>
+          <div class="cart-item-total">₹${(p.price * qty).toLocaleString()}</div>
+          <button class="cart-item-remove-btn" onclick="deleteFromCart(${id})" title="Remove item">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
         </div>
       </div>
     `;

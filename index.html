@@ -131,28 +131,40 @@
 
         <!-- Right side: Order Summary Card -->
         <div class="cart-summary-section" id="cart-summary-card" style="display: none;">
-          <h3>Order Summary</h3>
-          <form class="coupon-form" onsubmit="applyCoupon(event)">
-            <input type="text" id="coupon-input" placeholder="Enter coupon code">
-            <button type="submit" id="coupon-apply-btn">Apply</button>
-          </form>
-          <div id="applied-coupon-display" style="display: none;">
-            <!-- Applied coupon info will be shown here -->
+          <div class="summary-card-header">
+            <h3>Order Summary</h3>
           </div>
+
+          <div class="coupon-container">
+            <label class="coupon-label"><i class="fa-solid fa-ticket"></i> Have a Coupon Code?</label>
+            <form class="coupon-form" onsubmit="applyCoupon(event)">
+              <input type="text" id="coupon-input" placeholder="e.g. WELCOME10, SAVE50">
+              <button type="submit" id="coupon-apply-btn">Apply</button>
+            </form>
+            <div id="applied-coupon-display" style="display: none;"></div>
+          </div>
+
           <div class="price-breakdown">
-            <div class="price-row-summary"><span>Subtotal</span><span id="subtotal">₹0</span></div>
-            <div class="price-row-summary"><span>Delivery</span><span id="delivery">₹40</span></div>
-            <div class="price-row-summary"><span>Discount</span><span id="discount"
-                style="color:var(--success)">-₹0</span></div>
-            <div class="price-row-summary total"><span>Total</span><span id="total-price">₹40</span></div>
+            <div class="price-row-summary"><span>Subtotal</span><span id="subtotal" class="price-val">₹0</span></div>
+            <div class="price-row-summary"><span>Delivery Charge</span><span id="delivery" class="price-val">₹40</span></div>
+            <div class="price-row-summary"><span>Coupon Discount</span><span id="discount" class="price-val discount-val">-₹0</span></div>
+            <div class="price-row-summary total"><span>Total Payable</span><span id="total-price" class="total-val">₹40</span></div>
           </div>
-          <button class="checkout-btn" onclick="checkout()">
-            <i class="fa-solid fa-circle-check"></i> Place Order
-          </button>
-          <button class="clear-btn" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i> Clear Cart</button>
-          <button class="back-shopping-btn" onclick="showView('products')">
-            <i class="fa-solid fa-arrow-left"></i> Continue Shopping
-          </button>
+
+          <div class="cart-summary-actions">
+            <button class="checkout-btn" onclick="checkout()">
+              <i class="fa-solid fa-circle-check"></i> Place Order
+            </button>
+            
+            <div class="summary-sub-actions">
+              <button class="back-shopping-btn" onclick="showView('products')">
+                <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+              </button>
+              <button class="clear-btn" onclick="clearCart()">
+                <i class="fa-solid fa-trash-can"></i> Clear Cart
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
